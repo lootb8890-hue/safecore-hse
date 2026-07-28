@@ -1,0 +1,375 @@
+// SafeCore HSE Platform - Complete Prisma Schema
+// Enterprise Multi-Tenant White-Label Architecture
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+enum AssetLayer {
+  EXTINGUISHER
+  EMERGENCY_EXIT
+  FIRST_AID
+  ALARM
+  ELECTRICAL
+  HAZARD_ZONE
+  SAFETY_EQUIPMENT
+  CAMERA
+}
+
+enum AssetStatus {
+  ACTIVE
+  MAINTENANCE_REQUIRED
+  EXPIRED
+  DECOMMISSIONED
+}
+
+enum ScheduleFreq {
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  BIANNUAL
+  ANNUAL
+  ON_DEMAND
+}
+
+enum InspectionStatus {
+  COMPLETED
+  FAILED_WITH_REMARKS
+  DRAFT_OFFLINE
+}
+
+enum EmergencyType {
+  FIRE
+  INJURY
+  GAS_LEAK
+  ELECTRICAL_SHORT
+  HAZMAT
+  EVACUATION
+}
+
+enum IncidentStatus {
+  ACTIVE_ALARM
+  UNDER_INVESTIGATION
+  RESOLVED
+  CLOSED
+}
+
+enum TaskPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+enum DocCategory {
+  SAFETY_POLICY
+  SOP
+  MSDS
+  REPORT
+  TRAINING
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
+  VOICE
+  VIDEO
+  LOCATION
+}
+
+model Tenant {
+  id             String    @id @default(uuid())
+  name           String
+  subdomain      String    @unique
+  logoUrl        String?   @map("logo_url")
+  primaryColor   String    @default("#1A56DB") @map("primary_color")
+  secondaryColor String    @default("#0E317A") @map("secondary_color")
+  accentColor    String    @default("#F05252") @map("accent_color")
+  fontFamily     String    @default("IBM Plex Sans Arabic") @map("font_family")
+  isRtl          Boolean   @default(true) @map("is_rtl")
+  branches       Json?     @default("[]")
+  departments    Json?     @default("[]")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  // Relationships
+  users             User[]
+  layouts           FacilityLayout[]
+  safetyAssets      SafetyAsset[]
+  inspectionForms   InspectionForm[]
+  inspectionRecords InspectionRecord[]
+  incidents         Incident[]
+  tasks             TaskItem[]
+  documents         Document[]
+  chatGroups        ChatGroup[]
+  messages          ChatMessage[]
+  auditLogs         AuditLog[]
+
+  @@map("tenants")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  tenantId     String    @map("tenant_id")
+  email        String
+  passwordHash String    @map("password_hash")
+  fullName     String    @map("full_name")
+  role         Role      @default(MEMBER)
+  avatarUrl    String?   @map("avatar_url")
+  department   String?
+  branch       String?
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLogin    DateTime? @map("last_login")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  // Relationships
+  tenant              Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  inspectionRecords   InspectionRecord[] @relation("InspectorRelation")
+  reportedIncidents   Incident[]         @relation("ReporterRelation")
+  assignedTasks       TaskItem[]         @relation("AssignedToRelation")
+  createdTasks        TaskItem[]         @relation("CreatedByRelation")
+  uploadedDocuments   Document[]         @relation("DocumentUploader")
+  sentMessages        ChatMessage[]      @relation("SenderRelation")
+  auditLogs           AuditLog[]         @relation("ActorRelation")
+
+  @@unique([tenantId, email], name: "uq_tenant_email")
+  @@index([tenantId, role])
+  @@map("users")
+}
+
+model FacilityLayout {
+  id             String   @id @default(uuid())
+  tenantId       String   @map("tenant_id")
+  name           String
+  branchName     String?  @map("branch_name")
+  fileUrl        String   @map("file_url")
+  fileType       String   @map("file_type") // PDF, PNG, JPG, DWG
+  widthMeters    Float    @default(100.0) @map("width_meters")
+  heightMeters   Float    @default(100.0) @map("height_meters")
+  canvasResX     Int      @default(3000) @map("canvas_resolution_x")
+  canvasResY     Int      @default(3000) @map("canvas_resolution_y")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  // Relationships
+  tenant         Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  safetyAssets   SafetyAsset[]
+  incidents      Incident[]
+
+  @@index([tenantId])
+  @@map("facility_layouts")
+}
+
+model SafetyAsset {
+  id                String      @id @default(uuid())
+  tenantId          String      @map("tenant_id")
+  layoutId          String?     @map("layout_id")
+  layerType         AssetLayer  @map("layer_type")
+  assetNumber       String      @map("asset_number")
+  name              String
+  qrCode            String      @unique @map("qr_code")
+  barcode           String?
+  status            AssetStatus @default(ACTIVE)
+  coordX            Float?      @map("coord_x")
+  coordY            Float?      @map("coord_y")
+  manufacturer      String?
+  installationDate  DateTime?   @map("installation_date")
+  warrantyExpiry    DateTime?   @map("warranty_expiry")
+  lastInspection    DateTime?   @map("last_inspection_date")
+  nextInspection    DateTime?   @map("next_inspection_date")
+  historyLog        Json?       @default("[]") @map("history_log")
+  createdAt         DateTime    @default(now()) @map("created_at")
+
+  // Relationships
+  tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  layout            FacilityLayout?    @relation(fields: [layoutId], references: [id], onDelete: SetNull)
+  inspectionRecords InspectionRecord[]
+
+  @@unique([tenantId, assetNumber], name: "uq_tenant_asset_num")
+  @@index([tenantId, layerType, status])
+  @@index([qrCode])
+  @@map("safety_assets")
+}
+
+model InspectionForm {
+  id                String       @id @default(uuid())
+  tenantId          String       @map("tenant_id")
+  title             String
+  description       String?
+  targetLayer       AssetLayer?  @map("target_layer")
+  scheduleFrequency ScheduleFreq @map("schedule_frequency")
+  formSchema        Json         @map("form_schema")
+  isActive          Boolean      @default(true) @map("is_active")
+  createdAt         DateTime     @default(now()) @map("created_at")
+
+  // Relationships
+  tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  records           InspectionRecord[]
+
+  @@index([tenantId, scheduleFrequency])
+  @@map("inspection_forms")
+}
+
+model InspectionRecord {
+  id                String           @id @default(uuid())
+  tenantId          String           @map("tenant_id")
+  formId            String           @map("form_id")
+  assetId           String?          @map("asset_id")
+  inspectorId       String           @map("inspector_id")
+  status            InspectionStatus @default(COMPLETED)
+  answers           Json
+  signatureUrl      String?          @map("signature_url")
+  gpsLatitude       Float?           @map("gps_latitude")
+  gpsLongitude      Float?           @map("gps_longitude")
+  executedAt        DateTime         @default(now()) @map("executed_at")
+  syncedFromOffline Boolean          @default(false) @map("synced_from_offline")
+
+  // Relationships
+  tenant            Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  form              InspectionForm   @relation(fields: [formId], references: [id])
+  asset             SafetyAsset?     @relation(fields: [assetId], references: [id], onDelete: SetNull)
+  inspector         User             @relation("InspectorRelation", fields: [inspectorId], references: [id])
+
+  @@index([tenantId, assetId])
+  @@index([inspectorId, executedAt])
+  @@map("inspection_records")
+}
+
+model Incident {
+  id                String         @id @default(uuid())
+  tenantId          String         @map("tenant_id")
+  emergencyType     EmergencyType  @map("emergency_type")
+  reportedById      String         @map("reported_by_id")
+  locationText      String         @map("location_text")
+  layoutId          String?        @map("layout_id")
+  coordX            Float?         @map("coord_x")
+  coordY            Float?         @map("coord_y")
+  severity          String         @default("CRITICAL")
+  status            IncidentStatus @default(ACTIVE_ALARM)
+  mediaUrls         Json?          @default("[]") @map("media_urls")
+  correctiveActions String?        @map("corrective_actions")
+  reportedAt        DateTime       @default(now()) @map("reported_at")
+  resolvedAt        DateTime?      @map("resolved_at")
+
+  // Relationships
+  tenant            Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  reporter          User            @relation("ReporterRelation", fields: [reportedById], references: [id])
+  layout            FacilityLayout? @relation(fields: [layoutId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, status, reportedAt])
+  @@map("incidents")
+}
+
+model TaskItem {
+  id                 String       @id @default(uuid())
+  tenantId           String       @map("tenant_id")
+  title              String
+  description        String?
+  assignedToId       String       @map("assigned_to_id")
+  createdById        String       @map("created_by_id")
+  priority           TaskPriority @default(NORMAL)
+  status             TaskStatus   @default(PENDING)
+  progressPercentage Int          @default(0) @map("progress_percentage")
+  dueDate            DateTime     @map("due_date")
+  createdAt          DateTime     @default(now()) @map("created_at")
+
+  // Relationships
+  tenant             Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  assignedTo         User         @relation("AssignedToRelation", fields: [assignedToId], references: [id])
+  createdBy          User         @relation("CreatedByRelation", fields: [createdById], references: [id])
+
+  @@index([tenantId, assignedToId, dueDate, status])
+  @@map("tasks")
+}
+
+model Document {
+  id           String      @id @default(uuid())
+  tenantId     String      @map("tenant_id")
+  title        String
+  category     DocCategory @default(SOP)
+  fileUrl      String      @map("file_url")
+  fileType     String      @map("file_type") // PDF, DOCX, XLSX, MP4
+  uploadedById String      @map("uploaded_by_id")
+  uploadedAt   DateTime    @default(now()) @map("uploaded_at")
+
+  // Relationships
+  tenant       Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  uploadedBy   User        @relation("DocumentUploader", fields: [uploadedById], references: [id])
+
+  @@index([tenantId, category])
+  @@map("documents")
+}
+
+model ChatGroup {
+  id           String        @id @default(uuid())
+  tenantId     String        @map("tenant_id")
+  name         String
+  description  String?
+  createdAt    DateTime      @default(now()) @map("created_at")
+
+  // Relationships
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  messages     ChatMessage[]
+
+  @@index([tenantId])
+  @@map("chat_groups")
+}
+
+model ChatMessage {
+  id            String      @id @default(uuid())
+  tenantId      String      @map("tenant_id")
+  groupId       String?     @map("group_id")
+  senderId      String      @map("sender_id")
+  messageType   MessageType @default(TEXT) @map("message_type")
+  content       String?
+  attachmentUrl String?     @map("attachment_url")
+  isPinned      Boolean     @default(false) @map("is_pinned")
+  replyToId     String?     @map("reply_to_id")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  // Relationships
+  tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  group         ChatGroup?  @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  sender        User        @relation("SenderRelation", fields: [senderId], references: [id])
+
+  @@index([tenantId, groupId, createdAt])
+  @@map("chat_messages")
+}
+
+model AuditLog {
+  id           String    @id @default(uuid())
+  tenantId     String    @map("tenant_id")
+  actorId      String?   @map("actor_id")
+  actionType   String    @map("action_type")
+  targetEntity String    @map("target_entity")
+  targetId     String    @map("target_id")
+  oldValues    Json?     @map("old_values")
+  newValues    Json?     @map("new_values")
+  ipAddress    String?   @map("ip_address")
+  timestamp    DateTime  @default(now())
+
+  // Relationships
+  tenant       Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  actor        User?     @relation("ActorRelation", fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, timestamp])
+  @@map("audit_logs")
+}

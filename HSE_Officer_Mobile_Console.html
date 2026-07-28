@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeCore HSE - تطبيق مسؤول السلامة الميداني (Portable Officer Console)</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #070b12;
+            --tablet-bg: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.12);
+            --primary: #2563eb;
+            --warning-orange: #f97316;
+            --danger-red: #ef4444;
+            --success-green: #22c55e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font: 'IBM Plex Sans Arabic', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background-image: radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 70%);
+        }
+
+        /* Rugged Industrial Tablet Device Frame */
+        .tablet-frame {
+            width: 100%;
+            max-width: 1100px;
+            height: 780px;
+            background: #000000;
+            border-radius: 40px;
+            border: 14px solid #1c2434;
+            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(255, 255, 255, 0.05);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Top Status Bar (GPS, Offline Battery Info) */
+        .status-bar {
+            background: #090e17;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-weight: 700;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .gps-active {
+            color: var(--success-green);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        /* Main Console Layout */
+        .console-body {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            flex-grow: 1;
+            overflow: hidden;
+            background: var(--tablet-bg);
+        }
+
+        /* Left Side Navigation */
+        .side-menu {
+            background: #090e17;
+            border-left: 1px solid var(--border-color);
+            padding: 20px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .officer-profile {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--warning-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+        }
+
+        .menu-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-main);
+            padding: 16px 18px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: right;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+
+        .menu-btn i { font-size: 20px; width: 26px; color: var(--warning-orange); }
+
+        .menu-btn.active, .menu-btn:hover {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .menu-btn.swa-btn {
+            margin-top: auto;
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid var(--danger-red);
+            color: #fca5a5;
+            font-weight: 900;
+            justify-content: center;
+        }
+
+        .menu-btn.swa-btn i { color: var(--danger-red); }
+
+        /* Main Display View */
+        .workspace {
+            padding: 24px 30px;
+            overflow-y: auto;
+        }
+
+        .view-panel { display: none; }
+        .view-panel.active { display: block; }
+
+        .header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+
+        /* PTW Permit Card */
+        .permit-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .permit-card::after {
+            content: '';
+            position: absolute;
+            right: 0; top: 0; bottom: 0;
+            width: 6px;
+            background: var(--warning-orange);
+        }
+
+        .tag-pill {
+            background: rgba(249, 115, 22, 0.2);
+            color: var(--warning-orange);
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 8px;
+            border: 1px solid rgba(249, 115, 22, 0.4);
+        }
+
+        /* Inspection Checklist Step Box */
+        .check-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chk-btn {
+            background: #090e17;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .chk-btn.pass.active { background: var(--success-green); color: white; border-color: var(--success-green); box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
+        .chk-btn.fail.active { background: var(--danger-red); color: white; border-color: var(--danger-red); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+
+        /* Signature Canvas Pad */
+        .sig-pad-box {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 3px dashed var(--warning-orange);
+            width: 100%;
+            height: 140px;
+            margin: 16px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas { width: 100%; height: 100%; cursor: crosshair; }
+
+        .btn-action {
+            background: var(--warning-orange);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 20px rgba(249, 115, 22, 0.4);
+        }
+
+        /* Stop Work Authority Banner */
+        .swa-card {
+            background: linear-gradient(135deg, #7f1d1d, #450a0a);
+            border: 3px solid #ef4444;
+            border-radius: 24px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(239, 68, 68, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Tablet Rugged Hardware Frame -->
+    <div class="tablet-frame">
+        
+        <!-- Status Bar (Header Telemetry) -->
+        <header class="status-bar">
+            <div style="display:flex; gap:16px; align-items:center;">
+                <span class="status-badge"><i class="fa-solid fa-satellite-dish" style="color:var(--success-green);"></i> <span class="gps-active">GPS accuracy ±1.2m [24.7136° N, 46.6753° E]</span></span>
+                <span class="status-badge"><i class="fa-solid fa-shield-halved" style="color:var(--warning-orange);"></i> OSHA / ISO 45001 Mode</span>
+            </div>
+            <div style="display:flex; gap:16px; align-items:center;">
+                <span style="color:#22c55e;"><i class="fa-solid fa-wifi"></i> Online Sync Active (Hive Storage Ready)</span>
+                <span><i class="fa-solid fa-battery-full" style="color:white;"></i> 98%</span>
+                <span style="color:white;">14:30 UTC</span>
+            </div>
+        </header>
+
+        <div class="console-body">
+            <!-- Left Officer Navigation -->
+            <nav class="side-menu">
+                <div class="officer-profile">
+                    <div class="avatar">م.خ</div>
+                    <div>
+                        <b style="display:block; font-size:15px; color:white;">المهندس خالد المنصور</b>
+                        <span style="font-size:12px; color:var(--warning-orange); font-weight:bold;">مفتش أول سلامة (Senior Marshal)</span>
+                    </div>
+                </div>
+
+                <button class="menu-btn active" onclick="switchTab('ptw', this)">
+                    <i class="fa-solid fa-id-card-clip"></i> تصاريح العمل (PTW)
+                </button>
+                <button class="menu-btn" onclick="switchTab('audit', this)">
+                    <i class="fa-solid fa-clipboard-check"></i> نماذج الفحص الميدانية
+                </button>
+                <button class="menu-btn" onclick="switchTab('qr', this)">
+                    <i class="fa-solid fa-camera-viewfinder"></i> مسح رموز QR للأصول
+                </button>
+                <button class="menu-btn" onclick="switchTab('nearmiss', this)">
+                    <i class="fa-solid fa-triangle-exclamation"></i> التبليغ عن حادث وشيك
+                </button>
+                
+                <button class="menu-btn swa-btn" onclick="switchTab('swa', this)">
+                    <i class="fa-solid fa-hand-pulse"></i> صلاحية إيقاف العمل (SWA)
+                </button>
+            </nav>
+
+            <!-- Workspace Area -->
+            <main class="workspace">
+                
+                <!-- MODULE 1: PERMIT TO WORK (PTW) -->
+                <div id="view-ptw" class="view-panel active">
+                    <div class="header-box">
+                        <div>
+                            <h2 style="font-size:26px; font-weight:900; color:white;"><i class="fa-solid fa-user-shield" style="color:var(--warning-orange);"></i> نظام إدارات تصاريح العمل الخطرة (Permit to Work - PTW)</h2>
+                            <p style="color:var(--text-muted); font-size:14px;">المراجعة والاعتماد الميداني لتصاريح المقاولين والورش الحساسة.</p>
+                        </div>
+                        <span style="background:rgba(249,115,22,0.15); border:1px solid var(--warning-orange); padding:8px 16px; border-radius:12px; font-weight:800; color:var(--warning-orange);">3 تصاريح بانتظار اعتماد المفتش</span>
+                    </div>
+
+                    <!-- Card 1: Hot Work Permit -->
+                    <div class="permit-card">
+                        <div style="flex-grow:1;">
+                            <span class="tag-pill"><i class="fa-solid fa-fire"></i> تصريح أعمال ساخنة (HOT WORK - WELDING)</span>
+                            <h3 style="font-size:20px; color:white; margin:4px 0;">أعمال لحام وصيانة أنابيب التبريد بالضغط العالي</h3>
+                            <p style="color:var(--text-muted); font-size:14px;">الموقع: القطاع الشمالي (Deck B - Sector 4) • المقاول: شركة الإنشاءات الكبرى</p>
+                            <div style="margin-top:12px; display:flex; gap:15px; font-size:13px;">
+                                <span style="color:#22c55e;"><i class="fa-solid fa-check-circle"></i> فحص الغازات: 0% LEL (مطابق)</span>
+                                <span style="color:#22c55e;"><i class="fa-solid fa-check-circle"></i> وجود مراقب حريق (Fire Watcher)</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <button class="btn-action" style="padding:10px 20px; background:#22c55e;" onclick="alert('✅ تم اعتماد التصريح #PTW-894 والتوقيع الرقمي بنجاح! يتم الآن حفظ السجل في الـ Immutable Audit Trail.')"><i class="fa-solid fa-signature"></i> توقيع واعتماد التصريح</button>
+                            <button class="chk-btn fail" style="padding:10px; width:100%;" onclick="alert('❌ تم رفض التصريح لعدم استيفاء شروط العزل الطاقي (LOTO).')">رفض التصريح</button>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Confined Space Permit -->
+                    <div class="permit-card" style="border-right:6px solid #3b82f6;">
+                        <div style="flex-grow:1;">
+                            <span class="tag-pill" style="background:rgba(59,130,246,0.2); color:#60a5fa; border-color:#3b82f6;"><i class="fa-solid fa-door-closed"></i> دخول مكان مغلق (CONFINED SPACE ENTRY)</span>
+                            <h3 style="font-size:20px; color:white; margin:4px 0;">التفتيش على خزان الوقود الاحتياطي #Tank-09</h3>
+                            <p style="color:var(--text-muted); font-size:14px;">الموقع: محطة المعالجة رقم 2 • المقاول: فريق الصيانة الداخلية</p>
+                            <div style="margin-top:12px; display:flex; gap:15px; font-size:13px;">
+                                <span style="color:#f97316;"><i class="fa-solid fa-clock"></i> اختبار نسبة الأكسجين (O2: 20.9%)</span>
+                                <span style="color:#22c55e;"><i class="fa-solid fa-check-circle"></i> تجهيز حبال الإنقاذ وأسطوانات الـ SCBA</span>
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn-action" style="padding:10px 20px;" onclick="alert('📝 فتح نموذج مراجعة الأوكسجين قبل التوقيع النهائي...')"><i class="fa-solid fa-magnifying-glass"></i> تدقيق قراءات الحساسات</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODULE 2: FIELD INSPECTION & TOUCH SIGNATURE PAD -->
+                <div id="view-audit" class="view-panel">
+                    <div class="header-box">
+                        <div>
+                            <h2 style="font-size:26px; font-weight:900; color:white;"><i class="fa-solid fa-clipboard-check" style="color:var(--warning-orange);"></i> قائمة الفحص التفتيشية الصارمة (OSHA Audit Runner)</h2>
+                            <p style="color:var(--text-muted); font-size:14px;">فحص أصول السلامة (طفاية #EXT-901) وفق بروتوكول المعايير القياسية</p>
+                        </div>
+                        <span class="status-badge" style="color:var(--warning-orange); border-color:var(--warning-orange);">خطوة 3 من 4: التحقق المادي والتوقيع</span>
+                    </div>
+
+                    <!-- Interactive Checklist Items -->
+                    <div class="check-item">
+                        <div>
+                            <b style="font-size:16px; display:block;">1. فحص ضغط اسطوانة الحريق (Pressure Gauge Check)</b>
+                            <span style="color:var(--text-muted); font-size:13px;">يجب أن يكون مؤشر الضغط في النطاق الأخضر دون هبوط أو تسرب.</span>
+                        </div>
+                        <div class="toggle-group">
+                            <button class="chk-btn pass active" onclick="toggleBtn(this, 'pass')"><i class="fa-solid fa-check"></i> مطابق (Pass)</button>
+                            <button class="chk-btn fail" onclick="toggleBtn(this, 'fail')"><i class="fa-solid fa-times"></i> مخالف (Fail)</button>
+                        </div>
+                    </div>
+
+                    <div class="check-item">
+                        <div>
+                            <b style="font-size:16px; display:block;">2. سلامة الخرطوم ومخلب السحب (Hose & Safety Pin Integrity)</b>
+                            <span style="color:var(--text-muted); font-size:13px;">التحقق من عدم وجود تشقق في الخرطوم أو تكسر في ختم الأمان الهيدروليكي.</span>
+                        </div>
+                        <div class="toggle-group">
+                            <button class="chk-btn pass active" onclick="toggleBtn(this, 'pass')"><i class="fa-solid fa-check"></i> مطابق (Pass)</button>
+                            <button class="chk-btn fail" onclick="toggleBtn(this, 'fail')"><i class="fa-solid fa-times"></i> مخالف (Fail)</button>
+                        </div>
+                    </div>
+
+                    <div class="check-item" style="background:rgba(249,115,22,0.05); border:1px solid rgba(249,115,22,0.3);">
+                        <div>
+                            <b style="font-size:16px; display:block;"><i class="fa-solid fa-camera" style="color:var(--warning-orange);"></i> 3. التقط صورة ميدانية لختم التفتيش (Timestamped GPS Photo)</b>
+                            <span style="color:var(--text-muted); font-size:13px;">يلزم القانون توثيق صورة للأصل أثناء المعاينة لإثبات التواجد الميداني للمسؤول.</span>
+                        </div>
+                        <button class="btn-action" style="padding:10px 20px; font-size:13px;" onclick="alert('📸 تم تشغيل كاميرا التابلت... تم التقاط الصورة وختمها بالإحداثيات [24.7136 N, 46.6753 E] والوقت [14:32 UTC]!')"><i class="fa-solid fa-camera-retro"></i> تشغيل الكاميرا والتقاط الصورة</button>
+                    </div>
+
+                    <!-- Live Interactive Signature Pad -->
+                    <div style="margin-top:24px;">
+                        <b style="font-size:16px; color:white;"><i class="fa-solid fa-pen-nib" style="color:var(--warning-orange);"></i> لوحة التوقيع الرقمية باللمس (Touch Signature Accreditation):</b>
+                        <p style="color:var(--text-muted); font-size:13px; margin-bottom:8px;">استخدم إصبعك أو قلم التابلت (Stylus) لكتابة توقيع الاعتماد الميداني أدناه:</p>
+                        
+                        <div class="sig-pad-box">
+                            <canvas id="sigCanvas"></canvas>
+                            <span style="position:absolute; top:8px; left:12px; color:#aaa; font-size:11px;">ارسم توقيعك هنا بالماوس أو اللمس (Touch Screen Pad)</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <button class="chk-btn" style="background:#333; color:white;" onclick="clearSignature()"><i class="fa-solid fa-eraser"></i> مسح التوقيع</button>
+                            <button class="btn-action" onclick="submitInspection()"><i class="fa-solid fa-cloud-arrow-up"></i> إغلاق الفحص والمزامنة الفورية مع السحاب</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODULE 3: QR CAMERA SCANNER -->
+                <div id="view-qr" class="view-panel">
+                    <div class="header-box">
+                        <div>
+                            <h2 style="font-size:26px; font-weight:900; color:white;"><i class="fa-solid fa-qrcode" style="color:var(--warning-orange);"></i> محاكي المسح الفوري لرموز الأصول والباركود</h2>
+                            <p style="color:var(--text-muted); font-size:14px;">توجيه كاميرا جهاز المفتش نحو الـ QR Code الخاص بأي معدة لفتح بطاقتها الذكية.</p>
+                        </div>
+                    </div>
+                    <div style="background:#090e17; border:3px dashed var(--border-color); border-radius:24px; padding:60px 20px; text-align:center;">
+                        <i class="fa-solid fa-expand" style="font-size:80px; color:var(--warning-orange); margin-bottom:20px; animation: pulsePin 1.5s infinite;"></i>
+                        <h3 style="font-size:22px; color:white; margin-bottom:8px;">كاميرا المفتش قيد التشغيل (Camera Active Viewfinder)</h3>
+                        <p style="color:var(--text-muted); margin-bottom:30px;">وجّه مربع المسح على ملصق الـ QR Code لفتح نموذج الفحص أو سجلات الصيانة السابقة.</p>
+                        <button class="btn-action" style="margin:0 auto;" onclick="switchTab('audit', document.querySelectorAll('.menu-btn')[1]); alert('✨ تم قراءة كود الـ QR: [EXT-901]. فتح قائمة فحص الطفاية وفق معايير OSHA...')"><i class="fa-solid fa-wand-magic-sparkles"></i> محاكاة مسح رمز QR بنجاح الآن (Scan EXT-901)</button>
+                    </div>
+                </div>
+
+                <!-- MODULE 4: STOP WORK AUTHORITY (SWA) -->
+                <div id="view-swa" class="view-panel">
+                    <div class="swa-card">
+                        <i class="fa-solid fa-hand-radiation" style="font-size:80px; color:#ef4444; margin-bottom:16px;"></i>
+                        <h1 style="font-size:36px; font-weight:900; color:white; letter-spacing:1px; margin-bottom:12px;">صلاحية إيقاف العمل الطارئة (STOP WORK AUTHORITY - SWA)</h1>
+                        <p style="font-size:16px; color:#fca5a5; max-width:700px; margin:0 auto 30px auto; line-height:1.6;">تخولك معايير السلامة العالمية واللائحة القانونية للمنشأة الحق المطلق في الإيقاف الفوري لأي مشروع، معدة، أو مقاول عند اكتشاف خطر مهدد للحياة (Imminent Danger)، وسيتم تجميد التصريح وإخطار القيادة العليا فوراً!</p>
+                        
+                        <div style="background:rgba(0,0,0,0.5); padding:20px; border-radius:16px; max-width:600px; margin:0 auto 30px auto; text-align:right;">
+                            <label style="display:block; font-weight:bold; margin-bottom:8px; color:white;">حدد سبب قرار إيقاف العمل الفوري:</label>
+                            <select style="width:100%; padding:12px; background:#1e293b; color:white; border:1px solid #ef4444; border-radius:10px; font-size:15px; font-weight:bold;">
+                                <option>تسرب غازات خانقة وسامة في منطقة الحفر</option>
+                                <option>عمل على ارتفاعات بدون استخدام أحزمة السلامة (Harness Audit Fail)</option>
+                                <option>تماس كهربائي وخطر العطل في محول الضغط العالي</option>
+                                <option>انهيار في هيكل السقالات وعدم استقرار منصات البناء</option>
+                            </select>
+                        </div>
+
+                        <button onclick="alert('⛔ تم إصدار أمر إيقاف العمل الفوري (STOP WORK ORDER)! تم إرسال إشعار عاجل عبر الـ Sockets لمدير المشروع والمقاول، وتدوين الواقعة في سجل التدقيق غير القابل للحذف!')" style="background:#ef4444; color:white; border:none; padding:18px 40px; font-size:22px; font-weight:900; border-radius:16px; cursor:pointer; box-shadow:0 0 40px rgba(239,68,68,0.8);"><i class="fa-solid fa-gavel"></i> إصدار قرار إيقاف العمل الآن (EXECUTE STOP WORK ORDER)</button>
+                    </div>
+                </div>
+
+                <!-- MODULE 5: NEAR MISS & HAZARD LOGGING -->
+                <div id="view-nearmiss" class="view-panel">
+                    <div class="header-box">
+                        <div>
+                            <h2 style="font-size:26px; font-weight:900; color:white;"><i class="fa-solid fa-triangle-exclamation" style="color:#f59e0b;"></i> تسجيل الحوادث الوشيكة (Near-Miss & Hazard Report)</h2>
+                            <p style="color:var(--text-muted); font-size:14px;">التوثيق المسبق للمخاطر لمنع وقوع الكوارث والإصابات المستقبلية.</p>
+                        </div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:18px; padding:24px;">
+                        <div style="margin-bottom:16px;">
+                            <label style="display:block; color:white; font-weight:bold; margin-bottom:8px;">وصف الخطر أو الحادث الوشيك الملاحظ في الميدان:</label>
+                            <textarea style="width:100%; height:100px; background:#090e17; border:1px solid var(--border-color); color:white; padding:12px; border-radius:12px; font-size:15px;">انزلاق كمية من الزيوت الصناعية بالقرب من ممر الرافعة الشوكية في مستودع المواد الكيميائية، مما شكّل خطر انزلاق شديد للعمال دون إشعارات تحذيرية.</textarea>
+                        </div>
+                        <div style="display:flex; gap:16px; margin-bottom:20px;">
+                            <button class="chk-btn" style="flex-grow:1; background:#1e293b; color:var(--warning-orange); padding:12px;"><i class="fa-solid fa-location-dot"></i> إرفاق الموقع الجغرافي [GPS Locked]</button>
+                            <button class="chk-btn" style="flex-grow:1; background:#1e293b; color:var(--warning-orange); padding:12px;"><i class="fa-solid fa-robot"></i> تحليل الأثر بالذكاء الاصطناعي (AI Synthesis)</button>
+                        </div>
+                        <button class="btn-action" style="width:100%; justify-content:center;" onclick="alert('📨 تم رفع بلاغ الحادث الوشيك بنجاح وتوجيه تنبيه صيانة فوري لفريق التنظيف!')"><i class="fa-solid fa-paper-plane"></i> إرسال بلاغ الحادث الوشيك للمركز</button>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(id, btn) {
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('view-' + id).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function toggleBtn(btn, type) {
+            const group = btn.parentElement;
+            group.querySelectorAll('.chk-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // HTML5 Canvas Signature Drawing
+        const canvas = document.getElementById('sigCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#2563eb'; // Deep signature ink color
+            ctx.lineCap = 'round';
+        }
+        window.addEventListener('resize', resizeCanvas);
+        setTimeout(resizeCanvas, 100);
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e.touches[0]); });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
+        canvas.addEventListener('touchend', () => isDrawing = false);
+
+        function startDraw(e) {
+            isDrawing = true;
+            const rect = canvas.getBoundingClientRect();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+        }
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function submitInspection() {
+            alert('🛡️ تم إغلاق التفتيش بنجاح!\n\n✅ تم إرفاق التوقيع الرقمي، الصورة، والإحداثيات الجغرافية بالميكروثانية.\n🔐 تم ختم المعاينة بتشفير SHA-256 ونقلها فوراً لخادم NestJS الميداني.');
+            clearSignature();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+{
+  "inspections": [
+    {
+      "id": "INS-001",
+      "asset_id": "FE-001",
+      "asset_name": "مطفأة بودرة جافة",
+      "inspector_id": "USR-001",
+      "inspector_name": "المهندس خالد المنصور",
+      "date": "2024-05-20",
+      "result": "مطابق",
+      "checklist": [
+        {"item": "ضغط المقياس سليم", "pass": true},
+        {"item": "الخرطوم سليم", "pass": true},
+        {"item": "ختم الأمان موجود", "pass": true},
+        {"item": "الموقع مناسب وواضح", "pass": true}
+      ],
+      "photos": [],
+      "notes": "جميع العناصر مطابقة للمعايير",
+      "gps_lat": 24.7136,
+      "gps_lng": 46.6753,
+      "created_at": "2024-05-20T10:30:00Z"
+    },
+    {
+      "id": "INS-002",
+      "asset_id": "FE-003",
+      "asset_name": "مطفأة رغوية",
+      "inspector_id": "USR-003",
+      "inspector_name": "سامي الحربي",
+      "date": "2024-05-15",
+      "result": "غير مطابق",
+      "checklist": [
+        {"item": "ضغط المقياس سليم", "pass": true},
+        {"item": "الخرطوم سليم", "pass": false},
+        {"item": "ختم الأمان موجود", "pass": true},
+        {"item": "الموقع مناسب وواضح", "pass": true}
+      ],
+      "photos": [],
+      "notes": "الخرطوم يحتاج استبدال - تم طلب قطعة غيار",
+      "gps_lat": 24.7140,
+      "gps_lng": 46.6760,
+      "created_at": "2024-05-15T11:00:00Z"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "permits": [
+    {
+      "id": "PTW-2024-015",
+      "title": "عمل لحام في خزان الوقود",
+      "type": "أعمال ساخنة",
+      "description": "سيتم تنفيذ أعمال لحام في خزان الوقود رقم (5) يرجى اتخاذ جميع إجراءات السلامة",
+      "location": "خزان الوقود رقم 5",
+      "responsible": "USR-002",
+      "start_date": "2024-05-22T08:00:00Z",
+      "end_date": "2024-05-22T16:00:00Z",
+      "status": "مفتوح",
+      "gas_test": true,
+      "fire_watcher": true,
+      "loto_applied": true,
+      "signatures": [
+        {"user_id": "USR-002", "role": "مقدم الطلب", "signed": true, "signed_at": "2024-05-22T07:30:00Z"},
+        {"user_id": "USR-003", "role": "مسؤول السلامة", "signed": true, "signed_at": "2024-05-22T07:45:00Z"},
+        {"user_id": "USR-004", "role": "رئيس القسم", "signed": true, "signed_at": "2024-05-22T07:50:00Z"}
+      ],
+      "created_at": "2024-05-22T07:00:00Z",
+      "updated_at": "2024-05-22T08:00:00Z"
+    },
+    {
+      "id": "PTW-2024-014",
+      "title": "صيانة كهربائية",
+      "type": "أعمال كهربائية",
+      "description": "صيانة لوحة التوزيع الرئيسية واستبدال القاطع الرئيسي",
+      "location": "لوحة التوزيع الرئيسية",
+      "responsible": "USR-003",
+      "start_date": "2024-05-22T09:00:00Z",
+      "end_date": "2024-05-22T15:00:00Z",
+      "status": "مغلق",
+      "gas_test": false,
+      "fire_watcher": false,
+      "loto_applied": true,
+      "signatures": [
+        {"user_id": "USR-003", "role": "مقدم الطلب", "signed": true, "signed_at": "2024-05-22T08:30:00Z"},
+        {"user_id": "USR-001", "role": "مسؤول السلامة", "signed": true, "signed_at": "2024-05-22T08:45:00Z"},
+        {"user_id": "USR-004", "role": "رئيس القسم", "signed": true, "signed_at": "2024-05-22T09:00:00Z"}
+      ],
+      "created_at": "2024-05-22T08:00:00Z",
+      "updated_at": "2024-05-22T15:30:00Z"
+    }
+  ]
+}

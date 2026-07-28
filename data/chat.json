@@ -1,0 +1,43 @@
+{
+  "rooms": [
+    {
+      "id": "ROOM-001",
+      "name": "فريق السلامة",
+      "members": ["USR-001", "USR-002", "USR-003", "USR-004", "USR-005"],
+      "messages": [
+        {
+          "id": "MSG-001",
+          "sender_id": "USR-002",
+          "sender_name": "أحمد علي",
+          "text": "السلام عليكم ورحمة الله وبركاته 👋",
+          "type": "text",
+          "timestamp": "2024-05-22T10:30:00Z"
+        },
+        {
+          "id": "MSG-002",
+          "sender_id": "USR-002",
+          "sender_name": "أحمد علي",
+          "text": "هناك جولة تفقدية بعد 30 دقيقة في مبنى الإنتاج",
+          "type": "text",
+          "timestamp": "2024-05-22T10:31:00Z"
+        },
+        {
+          "id": "MSG-003",
+          "sender_id": "USR-001",
+          "sender_name": "المهندس خالد المنصور",
+          "text": "تم الاستعداد ✅",
+          "type": "text",
+          "timestamp": "2024-05-22T10:32:00Z"
+        },
+        {
+          "id": "MSG-004",
+          "sender_id": "USR-004",
+          "sender_name": "فهد العتيبي",
+          "text": "لا تنسوا التأكد من معدات الإطفاء 🧯",
+          "type": "text",
+          "timestamp": "2024-05-22T10:33:00Z"
+        }
+      ]
+    }
+  ]
+}

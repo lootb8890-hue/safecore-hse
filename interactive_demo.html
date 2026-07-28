@@ -1,0 +1,2235 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SafeCore HSE - منصة السلامة المهنية</title>
+    <link rel="manifest" href="manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --green-900: #14532d;
+            --green-800: #166534;
+            --green-700: #15803d;
+            --green-600: #16a34a;
+            --green-500: #22c55e;
+            --green-400: #4ade80;
+            --green-100: #dcfce7;
+            --green-50: #f0fdf4;
+            --red-500: #ef4444;
+            --red-100: #fee2e2;
+            --orange-500: #f97316;
+            --orange-100: #ffedd5;
+            --blue-500: #3b82f6;
+            --blue-100: #dbeafe;
+            --yellow-500: #eab308;
+            --yellow-100: #fef9c3;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-full: 9999px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            background: var(--gray-100);
+            color: var(--gray-900);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* ==================== PHONE FRAME ==================== */
+        .phone-frame {
+            width: 400px;
+            max-width: 100%;
+            min-height: 750px;
+            background: var(--white);
+            border-radius: 36px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.05);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ==================== STATUS BAR ==================== */
+        .status-bar {
+            background: var(--green-800);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-bar .time { font-weight: 700; }
+
+        /* ==================== HEADER ==================== */
+        .app-header {
+            background: linear-gradient(135deg, var(--green-800), var(--green-700));
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+        .app-header .header-title {
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .app-header .header-title .shield-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .header-actions button {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .header-actions button:hover { background: rgba(255,255,255,0.3); }
+
+        /* Sub-header for inner pages */
+        .sub-header {
+            background: linear-gradient(135deg, var(--green-800), var(--green-700));
+            color: white;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sub-header .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .sub-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            flex-grow: 1;
+        }
+
+        /* ==================== SCREENS CONTAINER ==================== */
+        .screen-container {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+        }
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .screen.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==================== HOME SCREEN ==================== */
+        .hero-banner {
+            position: relative;
+            height: 180px;
+            background: linear-gradient(135deg, var(--green-700), var(--green-900));
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            color: white;
+        }
+        .hero-content h1 {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .hero-content p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Search Bar */
+        .search-bar {
+            margin: -20px 20px 16px 20px;
+            position: relative;
+            z-index: 10;
+        }
+        .search-bar input {
+            width: 100%;
+            padding: 14px 20px 14px 44px;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 14px;
+            background: var(--white);
+            box-shadow: var(--shadow-md);
+            outline: none;
+            transition: border 0.2s;
+        }
+        .search-bar input:focus { border-color: var(--green-500); }
+        .search-bar i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            font-size: 16px;
+        }
+
+        /* Quick Actions Grid */
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 0 20px 20px;
+        }
+        .quick-item {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 16px 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: var(--shadow-sm);
+        }
+        .quick-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--green-500);
+        }
+        .quick-item:active { transform: scale(0.95); }
+        .quick-item .qi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 22px;
+        }
+        .quick-item span {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--gray-700);
+            line-height: 1.3;
+            display: block;
+        }
+
+        /* Stats Section */
+        .section-title {
+            padding: 0 20px;
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--gray-800);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title i { color: var(--green-600); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 0 20px 24px;
+        }
+        .stat-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            padding: 14px 8px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+        }
+        .stat-card .stat-num {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--green-700);
+            line-height: 1;
+        }
+        .stat-card .stat-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--gray-500);
+            margin-top: 4px;
+        }
+
+        /* ==================== LISTS (Fire Ext, Incidents, Permits, Warnings) ==================== */
+        .list-container { padding: 16px 20px; }
+
+        .tabs-row {
+            display: flex;
+            gap: 0;
+            margin: 0 20px;
+            background: var(--gray-100);
+            border-radius: var(--radius-sm);
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px 8px;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gray-500);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--white);
+            color: var(--green-700);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Card Item */
+        .item-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .item-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--green-400);
+        }
+        .item-card:active { transform: scale(0.98); }
+
+        .item-card .card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .item-card .card-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: var(--gray-100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        .item-card .card-info h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 4px;
+        }
+        .item-card .card-info p {
+            font-size: 12px;
+            color: var(--gray-500);
+            line-height: 1.5;
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .badge-green { background: var(--green-100); color: var(--green-700); }
+        .badge-red { background: var(--red-100); color: var(--red-500); }
+        .badge-orange { background: var(--orange-100); color: var(--orange-500); }
+        .badge-blue { background: var(--blue-100); color: var(--blue-500); }
+        .badge-yellow { background: var(--yellow-100); color: var(--yellow-500); }
+
+        /* Priority Badges */
+        .priority-high { border-right: 4px solid var(--red-500); }
+        .priority-medium { border-right: 4px solid var(--orange-500); }
+        .priority-low { border-right: 4px solid var(--green-500); }
+
+        /* ==================== DETAIL PAGE ==================== */
+        .detail-section {
+            padding: 20px;
+        }
+        .detail-section .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--gray-100);
+            font-size: 14px;
+        }
+        .detail-row .label { color: var(--gray-500); font-weight: 500; }
+        .detail-row .value { color: var(--gray-800); font-weight: 700; text-align: left; }
+
+        .detail-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--gray-800);
+            margin: 16px 20px 12px;
+        }
+
+        /* Signatures Row */
+        .signatures-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 0 20px 20px;
+        }
+        .sig-box {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            text-align: center;
+        }
+        .sig-box .sig-img {
+            height: 40px;
+            color: var(--green-700);
+            font-family: 'Brush Script MT', cursive;
+            font-size: 22px;
+            font-style: italic;
+        }
+        .sig-box .sig-name {
+            font-size: 10px;
+            color: var(--gray-500);
+            margin-top: 4px;
+            font-weight: 600;
+        }
+        .sig-box .sig-role {
+            font-size: 9px;
+            color: var(--gray-400);
+        }
+
+        /* ==================== WARNINGS ==================== */
+        .warn-stats {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            padding: 20px;
+        }
+        .warn-stat {
+            text-align: center;
+        }
+        .warn-stat .ws-num {
+            font-size: 36px;
+            font-weight: 900;
+            line-height: 1;
+        }
+        .warn-stat .ws-label {
+            font-size: 12px;
+            color: var(--gray-500);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* ==================== CHAT ==================== */
+        .chat-container {
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+        .chat-msg {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+            position: relative;
+        }
+        .chat-msg.sent {
+            background: var(--green-600);
+            color: white;
+            align-self: flex-end;
+            border-bottom-left: 4px;
+        }
+        .chat-msg.received {
+            background: var(--gray-100);
+            color: var(--gray-800);
+            align-self: flex-start;
+            border-bottom-right: 4px;
+        }
+        .chat-msg .msg-sender {
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            opacity: 0.8;
+        }
+        .chat-msg .msg-time {
+            font-size: 10px;
+            text-align: left;
+            margin-top: 4px;
+            opacity: 0.6;
+        }
+
+        .chat-input-bar {
+            display: flex;
+            gap: 8px;
+            padding: 12px 20px;
+            border-top: 1px solid var(--gray-200);
+            background: var(--white);
+        }
+        .chat-input-bar input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-full);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+        }
+        .chat-input-bar input:focus { border-color: var(--green-500); }
+        .chat-input-bar button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: var(--green-600);
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .chat-input-bar button:hover { background: var(--green-700); }
+
+        /* ==================== FORM ==================== */
+        .form-container { padding: 20px; }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--gray-700);
+            margin-bottom: 6px;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 14px;
+            background: var(--white);
+            outline: none;
+            transition: border 0.2s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--green-500);
+        }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+
+        /* ==================== FAB ==================== */
+        .fab {
+            position: absolute;
+            bottom: 80px;
+            left: 20px;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            background: var(--green-600);
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(22, 163, 74, 0.5);
+            transition: all 0.3s;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .fab:hover {
+            background: var(--green-700);
+            transform: scale(1.1);
+        }
+
+        /* ==================== BUTTONS ==================== */
+        .btn-primary {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: var(--green-600);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-primary:hover { background: var(--green-700); }
+
+        .btn-outline {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            color: var(--green-700);
+            border: 2px solid var(--green-600);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* Emergency Button */
+        .emergency-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: calc(100% - 40px);
+            margin: 0 20px 20px;
+            padding: 16px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+            animation: emergencyPulse 2s infinite;
+        }
+        @keyframes emergencyPulse {
+            0%, 100% { box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4); }
+            50% { box-shadow: 0 6px 30px rgba(220, 38, 38, 0.7); }
+        }
+
+        /* ==================== BOTTOM NAVIGATION ==================== */
+        .bottom-nav {
+            display: flex;
+            background: var(--white);
+            border-top: 1px solid var(--gray-200);
+            padding: 8px 0 12px;
+            position: relative;
+            z-index: 100;
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 6px 4px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .nav-item i {
+            font-size: 20px;
+            color: var(--gray-400);
+            transition: color 0.2s;
+        }
+        .nav-item span {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--gray-400);
+            transition: color 0.2s;
+        }
+        .nav-item.active i { color: var(--green-600); }
+        .nav-item.active span { color: var(--green-600); }
+
+        /* ==================== EMPTY STATE ==================== */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray-400);
+        }
+        .empty-state i { font-size: 48px; margin-bottom: 12px; }
+        .empty-state p { font-size: 14px; }
+
+        /* ==================== SCROLLBAR ==================== */
+        .screen-container::-webkit-scrollbar { width: 4px; }
+        .screen-container::-webkit-scrollbar-track { background: transparent; }
+        .screen-container::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 4px; }
+
+        /* ==================== EMERGENCY MODAL ==================== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            width: 340px;
+            max-width: 90%;
+            text-align: center;
+            animation: modalPop 0.3s ease;
+        }
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-box h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--red-500);
+            margin: 12px 0;
+        }
+        .modal-box p {
+            font-size: 14px;
+            color: var(--gray-500);
+            margin-bottom: 20px;
+        }
+        .emergency-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .emg-item {
+            background: var(--gray-50);
+            border: 1px solid var(--gray-200);
+            border-radius: 12px;
+            padding: 14px 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .emg-item:hover {
+            border-color: var(--red-500);
+            background: var(--red-100);
+        }
+        .emg-item i { font-size: 24px; display: block; margin-bottom: 6px; }
+        .emg-item span { font-size: 11px; font-weight: 700; }
+
+        .modal-close {
+            background: var(--gray-200);
+            border: none;
+            padding: 12px 30px;
+            border-radius: var(--radius-full);
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* ==================== NOTIFICATIONS DOT ==================== */
+        .notif-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: var(--red-500);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="phone-frame">
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <span class="time">9:41</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+            <i class="fa-solid fa-signal" style="font-size:11px;"></i>
+            <i class="fa-solid fa-wifi" style="font-size:11px;"></i>
+            <i class="fa-solid fa-battery-full" style="font-size:11px;"></i>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: HOME -->
+    <!-- ============================================================ -->
+    <div id="screen-home" class="screen active" style="display:flex;flex-direction:column;flex:1;">
+        <div class="app-header">
+            <div class="header-title">
+                <div class="shield-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                السلامة المهنية
+            </div>
+            <div class="header-actions">
+                <button onclick="showScreen('notifications')"><i class="fa-solid fa-bell"></i></button>
+                <button onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i></button>
+            </div>
+        </div>
+
+        <div class="screen-container">
+            <!-- Hero Banner -->
+            <div class="hero-banner">
+                <div class="hero-content">
+                    <h1>سلامتك مسؤوليتنا جميعاً</h1>
+                    <p>منصة إدارة السلامة والصحة المهنية</p>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <input type="text" placeholder="بحث عن معدات، تقارير، تصاريح..." />
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+
+            <!-- Quick Actions Grid -->
+            <div class="quick-grid">
+                <div class="quick-item" onclick="showScreen('extinguishers')">
+                    <div class="qi-icon" style="background:var(--red-100);color:var(--red-500);">
+                        <i class="fa-solid fa-fire-extinguisher"></i>
+                    </div>
+                    <span>المطافئ</span>
+                </div>
+                <div class="quick-item" onclick="showScreen('incidents')">
+                    <div class="qi-icon" style="background:var(--orange-100);color:var(--orange-500);">
+                        <i class="fa-solid fa-file-circle-exclamation"></i>
+                    </div>
+                    <span>الاسكار</span>
+                </div>
+                <div class="quick-item" onclick="showScreen('permits')">
+                    <div class="qi-icon" style="background:var(--blue-100);color:var(--blue-500);">
+                        <i class="fa-solid fa-id-card-clip"></i>
+                    </div>
+                    <span>تصاريح العمل</span>
+                </div>
+                <div class="quick-item" onclick="showScreen('warnings')">
+                    <div class="qi-icon" style="background:var(--yellow-100);color:var(--yellow-500);">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <span>الانذارات</span>
+                </div>
+                <div class="quick-item" onclick="showScreen('inspection')">
+                    <div class="qi-icon" style="background:var(--green-100);color:var(--green-700);">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <span>فحص سلامة</span>
+                </div>
+                <div class="quick-item" onclick="showEmergency()">
+                    <div class="qi-icon" style="background:var(--red-100);color:var(--red-500);">
+                        <i class="fa-solid fa-phone-volume"></i>
+                    </div>
+                    <span>اتصل بالطوارئ</span>
+                </div>
+                <div class="quick-item" onclick="showScreen('chat')">
+                    <div class="qi-icon" style="background:#ede9fe;color:#7c3aed;">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <span>المحادثات</span>
+                </div>
+                <div class="quick-item" onclick="showScreen('documents')">
+                    <div class="qi-icon" style="background:var(--gray-100);color:var(--gray-600);">
+                        <i class="fa-solid fa-ellipsis"></i>
+                    </div>
+                    <span>المزيد</span>
+                </div>
+            </div>
+
+            <!-- Safety Statistics -->
+            <div class="section-title"><i class="fa-solid fa-chart-bar"></i> إحصائيات السلامة</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-num">12</div>
+                    <div class="stat-label">المطافئ</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num">8</div>
+                    <div class="stat-label">تصاريح العمل</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num">5</div>
+                    <div class="stat-label">الانذارات<br>هذا الشهر</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-num">27</div>
+                    <div class="stat-label">عمليات الفحص<br>المكتملة</div>
+                </div>
+            </div>
+
+            <!-- Emergency Quick Button -->
+            <button class="emergency-btn" onclick="showEmergency()">
+                <i class="fa-solid fa-phone-volume"></i>
+                اتصل بالطوارئ الآن
+            </button>
+        </div>
+
+        <!-- Bottom Nav -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="showScreen('home')">
+                <i class="fa-solid fa-house"></i>
+                <span>الرئيسية</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('tasks')">
+                <i class="fa-solid fa-list-check"></i>
+                <span>المهام</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('reports')">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>التقارير</span>
+            </button>
+            <button class="nav-item" onclick="showScreen('settings')">
+                <i class="fa-solid fa-gear"></i>
+                <span>الإعدادات</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: FIRE EXTINGUISHERS -->
+    <!-- ============================================================ -->
+    <div id="screen-extinguishers" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('home')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2>المطافئ</h2>
+            <button style="background:none;border:none;color:white;font-size:18px;cursor:pointer;" title="فلتر"><i class="fa-solid fa-filter"></i></button>
+        </div>
+
+        <div class="screen-container" style="flex:1;">
+            <div class="search-bar" style="margin-top:16px;">
+                <input type="text" placeholder="بحث عن مطفأة..." />
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+
+            <div class="list-container">
+                <!-- Ext 1 -->
+                <div class="item-card" onclick="showScreen('extDetail')">
+                    <div class="card-header">
+                        <div class="card-img" style="background:var(--red-100);color:var(--red-500);">🧯</div>
+                        <div class="card-info">
+                            <h4>مطفأة بودرة جافة</h4>
+                            <p>رقم: FE-001<br>الموقع: مبنى الإنتاج - الدور الأرضي<br>الفحص القادم: 2024/06/20</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span class="badge badge-green"><i class="fa-solid fa-check-circle"></i> سليم</span>
+                        <span style="font-size:11px;color:var(--gray-400);">آخر فحص: 2024/05/20</span>
+                    </div>
+                </div>
+
+                <!-- Ext 2 -->
+                <div class="item-card">
+                    <div class="card-header">
+                        <div class="card-img" style="background:var(--blue-100);color:var(--blue-500);">🧯</div>
+                        <div class="card-info">
+                            <h4>مطفأة ثاني أكسيد الكربون</h4>
+                            <p>رقم: FE-002<br>الموقع: المستودع - الجهة الشمالية<br>الفحص القادم: 2024/06/18</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span class="badge badge-green"><i class="fa-solid fa-check-circle"></i> سليم</span>
+                        <span style="font-size:11px;color:var(--gray-400);">آخر فحص: 2024/05/18</span>
+                    </div>
+                </div>
+
+                <!-- Ext 3 -->
+                <div class="item-card priority-high">
+                    <div class="card-header">
+                        <div class="card-img" style="background:var(--orange-100);color:var(--orange-500);">🧯</div>
+                        <div class="card-info">
+                            <h4>مطفأة رغوية</h4>
+                            <p>رقم: FE-003<br>الموقع: مبنى الإدارة - الدور الأول<br>الفحص القادم: 2024/06/15</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <span class="badge badge-orange"><i class="fa-solid fa-exclamation-circle"></i> يحتاج فحص</span>
+                        <span style="font-size:11px;color:var(--gray-400);">آخر فحص: 2024/05/15</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="fab" onclick="alert('إضافة مطفأة جديدة')"><i class="fa-solid fa-plus"></i></button>
+        <nav class="bottom-nav">
+            <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
+            <button class="nav-item" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
+            <button class="nav-item" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
+        </nav>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: EXTINGUISHER DETAIL -->
+    <!-- ============================================================ -->
+    <div id="screen-extDetail" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('extinguishers')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2>تفاصيل المطفأة</h2>
+            <button style="background:none;border:none;color:white;font-size:16px;cursor:pointer;"><i class="fa-solid fa-qrcode"></i></button>
+        </div>
+        <div class="screen-container" style="flex:1;">
+            <div style="text-align:center;padding:30px 20px 10px;">
+                <div style="width:80px;height:80px;margin:0 auto 12px;background:var(--red-100);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:42px;">🧯</div>
+                <h3 style="font-size:18px;font-weight:800;color:var(--gray-800);">مطفأة بودرة جافة</h3>
+                <span class="badge badge-green" style="margin-top:8px;"><i class="fa-solid fa-check-circle"></i> سليم</span>
+            </div>
+
+            <div class="detail-section">
+                <div class="detail-row"><span class="label">رقم المطفأة</span><span class="value">FE-001</span></div>
+                <div class="detail-row"><span class="label">النوع</span><span class="value">بودرة جافة (ABC)</span></div>
+                <div class="detail-row"><span class="label">الموقع</span><span class="value">مبنى الإنتاج - الدور الأرضي</span></div>
+                <div class="detail-row"><span class="label">تاريخ الصلاحية</span><span class="value">2025/12/01</span></div>
+                <div class="detail-row"><span class="label">آخر فحص</span><span class="value">2024/05/20</span></div>
+                <div class="detail-row"><span class="label">الفحص القادم</span><span class="value">2024/06/20</span></div>
+                <div class="detail-row"><span class="label">ضغط المقياس</span><span class="value badge badge-green" style="padding:2px 8px;">طبيعي ✓</span></div>
+            </div>
+
+            <div style="padding:0 20px 20px;display:flex;gap:10px;">
+                <button class="btn-primary" style="flex:1;" onclick="showScreen('inspection')"><i class="fa-solid fa-clipboard-check"></i> إجراء فحص</button>
+                <button class="btn-outline" style="flex:1;"><i class="fa-solid fa-history"></i> سجل الفحوصات</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: INCIDENTS (الاسكار) -->
+    <!-- ============================================================ -->
+    <div id="screen-incidents" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('home')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2>الاسكار</h2>
+        </div>
+        <div class="screen-container" style="flex:1;">
+            <div class="tabs-row">
+                <button class="tab-btn active">التي تم استلامها</button>
+                <button class="tab-btn" onclick="showScreen('newIncident')">التي قمت بانشائها</button>
+            </div>
+
+            <div class="list-container">
+                <!-- Incident 1 -->
+                <div class="item-card priority-high">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <span style="font-size:13px;font-weight:800;color:var(--green-700);">#SC-2024-0001</span>
+                        <span class="badge badge-orange">مفتوح</span>
+                    </div>
+                    <h4 style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:6px;">رصد تسرب زيت في ماكينة رقم (3)</h4>
+                    <p style="font-size:12px;color:var(--gray-500);line-height:1.6;">
+                        تم الإنشاء: 2024/05/21 - 10:30 ص<br>
+                        المنشئ: أحمد علي<br>
+                        الموقع: مبنى الإنتاج - الخط الأول<br>
+                        الأولوية: <span style="color:var(--red-500);font-weight:700;">عالية</span>
+                    </p>
+                    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+                        <span style="font-size:11px;color:var(--gray-500);"><i class="fa-solid fa-user"></i> المستلم: محمد خالد</span>
+                        <span class="badge badge-blue">قيد المعالجة</span>
+                    </div>
+                    <button class="btn-primary" style="margin-top:12px;padding:10px;font-size:13px;">عرض التفاصيل</button>
+                </div>
+
+                <!-- Incident 2 -->
+                <div class="item-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <span style="font-size:13px;font-weight:800;color:var(--green-700);">#SC-2024-0002</span>
+                        <span class="badge badge-green">مغلق</span>
+                    </div>
+                    <h4 style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:6px;">إضاءة طوارئ لا تعمل</h4>
+                    <p style="font-size:12px;color:var(--gray-500);line-height:1.6;">
+                        تم الإنشاء: 2024/05/20 - 09:15 ص<br>
+                        المنشئ: سامي الحربي<br>
+                        الموقع: مبنى الإدارة - الممر الرئيسي<br>
+                        الأولوية: <span style="color:var(--orange-500);font-weight:700;">متوسطة</span>
+                    </p>
+                    <div style="margin-top:10px;">
+                        <span style="font-size:11px;color:var(--gray-500);"><i class="fa-solid fa-user"></i> المستلم: فهد العتيبي</span>
+                        <span class="badge badge-green" style="margin-right:8px;">تم الحل</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="fab" onclick="showScreen('newIncident')"><i class="fa-solid fa-plus"></i></button>
+        <nav class="bottom-nav">
+            <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
+            <button class="nav-item" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
+            <button class="nav-item" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
+        </nav>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: NEW INCIDENT FORM -->
+    <!-- ============================================================ -->
+    <div id="screen-newIncident" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('incidents')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2>انشاء اسكار جديد</h2>
+        </div>
+        <div class="screen-container" style="flex:1;">
+            <div class="form-container">
+                <div class="form-group">
+                    <label>العنوان</label>
+                    <input type="text" placeholder="ادخل عنوان البلاغ" />
+                </div>
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea placeholder="صف الحادثة أو الخطر الذي تم رصده بالتفصيل...">يوجد درجة مكسورة في السلم تشكل خطر على العاملين</textarea>
+                </div>
+                <div class="form-group">
+                    <label>الموقع</label>
+                    <select>
+                        <option>مبنى الإنتاج - الدور الأرضي</option>
+                        <option>المستودع - الجهة الشمالية</option>
+                        <option>مبنى الإدارة - الدور الأول</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>الأولوية</label>
+                    <select>
+                        <option>عالية</option>
+                        <option selected>متوسطة</option>
+                        <option>منخفضة</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-camera" style="color:var(--green-600);"></i> إرفاق صورة</label>
+                    <div style="background:var(--gray-50);border:2px dashed var(--gray-300);border-radius:12px;padding:30px;text-align:center;cursor:pointer;">
+                        <i class="fa-solid fa-cloud-arrow-up" style="font-size:32px;color:var(--gray-400);"></i>
+                        <p style="font-size:13px;color:var(--gray-400);margin-top:8px;">اضغط لرفع صورة أو التقاط من الكاميرا</p>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="alert('✅ تم إرسال البلاغ بنجاح! رقم البلاغ: #SC-2024-0003')">
+                    <i class="fa-solid fa-paper-plane"></i> إرسال
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: WORK PERMITS -->
+    <!-- ============================================================ -->
+    <div id="screen-permits" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('home')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2>تصاريح العمل</h2>
+        </div>
+        <div class="screen-container" style="flex:1;">
+            <div class="tabs-row">
+                <button class="tab-btn active">المفتوحة</button>
+                <button class="tab-btn">جميع التصاريح</button>
+            </div>
+
+            <div class="list-container">
+                <div class="item-card" onclick="showScreen('permitDetail')">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <span style="font-size:13px;font-weight:800;color:var(--green-700);">#PTW-2024-015</span>
+                        <span class="badge badge-orange">مفتوح</span>
+                    </div>
+                    <h4 style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:6px;">عمل لحام في خزان الوقود</h4>
+                    <p style="font-size:12px;color:var(--gray-500);line-height:1.6;">
+                        المسؤول: أحمد علي<br>
+                        تاريخ البداية: 08:00/7 - 2024/05/22 م<br>
+                        تاريخ الانتهاء: 04:00 - 2024/05/22 م
+                    </p>
+                    <span class="badge badge-orange" style="margin-top:8px;">مفتوح</span>
+                </div>
+
+                <div class="item-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <span style="font-size:13px;font-weight:800;color:var(--green-700);">#PTW-2024-014</span>
+                        <span class="badge badge-green">مغلق</span>
+                    </div>
+                    <h4 style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:6px;">صيانة كهربائية</h4>
+                    <p style="font-size:12px;color:var(--gray-500);line-height:1.6;">
+                        المسؤول: سامي الحربي<br>
+                        الموقع: لوحة التوزيع الرئيسية<br>
+                        تاريخ الانتهاء: 2024/05/22
+                    </p>
+                    <span class="badge badge-green" style="margin-top:8px;">مغلق</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="fab" onclick="alert('+ تصريح عمل جديد')"><i class="fa-solid fa-plus"></i></button>
+        <nav class="bottom-nav">
+            <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
+            <button class="nav-item" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
+            <button class="nav-item" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
+        </nav>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: PERMIT DETAIL -->
+    <!-- ============================================================ -->
+    <div id="screen-permitDetail" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('permits')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2>تفاصيل تصريح العمل</h2>
+        </div>
+        <div class="screen-container" style="flex:1;">
+            <div style="text-align:center;padding:16px 20px;border-bottom:1px solid var(--gray-200);">
+                <span style="font-size:18px;font-weight:900;color:var(--green-700);">#PTW-2024-015</span>
+            </div>
+            <div class="detail-section">
+                <div class="detail-row"><span class="label">المسؤول</span><span class="value">أحمد علي</span></div>
+                <div class="detail-row"><span class="label">تاريخ البداية</span><span class="value">2024/05/22 - 08:00</span></div>
+                <div class="detail-row"><span class="label">تاريخ الانتهاء</span><span class="value">2024/05/22 - 04:00 م</span></div>
+                <div class="detail-row"><span class="label">الحالة</span><span class="value badge badge-orange">مفتوح</span></div>
+            </div>
+
+            <div class="detail-title">وصف العمل</div>
+            <p style="padding:0 20px 16px;font-size:14px;color:var(--gray-600);line-height:1.8;">
+                سيتم تنفيذ أعمال لحام في خزان الوقود رقم (5) يرجى اتخاذ جميع إجراءات السلامة.
+            </p>
+
+            <div class="detail-title">الموافقات والتواقيع</div>
+            <div class="signatures-grid">
+                <div class="sig-box">
+                    <div class="sig-img">أحمد</div>
+                    <div class="sig-name">أحمد علي</div>
+                    <div class="sig-role">مقدم الطلب</div>
+                </div>
+                <div class="sig-box">
+                    <div class="sig-img">سامي</div>
+                    <div class="sig-name">سامي الحربي</div>
+                    <div class="sig-role">مسؤول السلامة</div>
+                </div>
+                <div class="sig-box">
+                    <div class="sig-img">فهد</div>
+                    <div class="sig-name">فهد العتيبي</div>
+                    <div class="sig-role">رئيس القسم</div>
+                </div>
+            </div>
+
+            <div style="padding:0 20px 24px;">
+                <button class="btn-primary" onclick="alert('✅ تم إغلاق التصريح بنجاح')"><i class="fa-solid fa-lock"></i> إغلاق التصريح</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: WARNINGS -->
+    <!-- ============================================================ -->
+    <div id="screen-warnings" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('home')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2>الانذارات</h2>
+        </div>
+        <div class="screen-container" style="flex:1;">
+            <div class="warn-stats">
+                <div class="warn-stat">
+                    <div class="ws-num" style="color:var(--green-600);">3</div>
+                    <div class="ws-label">انذارات نشطة</div>
+                </div>
+                <div class="warn-stat">
+                    <div class="ws-num" style="color:var(--red-500);">2</div>
+                    <div class="ws-label">انذارات منتهية</div>
+                </div>
+                <div class="warn-stat">
+                    <div class="ws-num" style="color:var(--blue-500);">5</div>
+                    <div class="ws-label">إجمالي الانذارات</div>
+                </div>
+            </div>
+
+            <div class="list-container">
+                <div class="item-card priority-high">
+                    <div class="card-header">
+                        <div class="card-img" style="background:var(--gray-100);border-radius:50%;width:48px;height:48px;font-size:20px;">👤</div>
+                        <div class="card-info">
+                            <h4>أحمد علي</h4>
+                            <p>مخالفة عدم ارتداء معدات الوقاية<br>تاريخ الانذار: 2024/05/15<br>مدة الانذار: 30 يوم</p>
+                        </div>
+                    </div>
+                    <span class="badge badge-red">نشط</span>
+                </div>
+
+                <div class="item-card">
+                    <div class="card-header">
+                        <div class="card-img" style="background:var(--gray-100);border-radius:50%;width:48px;height:48px;font-size:20px;">👤</div>
+                        <div class="card-info">
+                            <h4>محمد خالد</h4>
+                            <p>مخالفة التدخين في المنطقة المحظورة<br>تاريخ الانذار: 2024/04/20<br>مدة الانذار: 30 يوم</p>
+                        </div>
+                    </div>
+                    <span class="badge badge-green">منتهي</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="fab" onclick="alert('+ إنذار جديد')"><i class="fa-solid fa-plus"></i></button>
+        <nav class="bottom-nav">
+            <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
+            <button class="nav-item" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
+            <button class="nav-item" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
+        </nav>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: CHAT -->
+    <!-- ============================================================ -->
+    <div id="screen-chat" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('home')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2><i class="fa-solid fa-users" style="margin-left:8px;"></i> فريق السلامة</h2>
+            <span style="font-size:12px;opacity:0.7;">12 عضو</span>
+        </div>
+
+        <div class="screen-container" style="flex:1;display:flex;flex-direction:column;">
+            <div class="chat-container" style="flex:1;">
+                <div class="chat-msg received">
+                    <div class="msg-sender">أحمد علي</div>
+                    السلام عليكم ورحمة الله وبركاته 👋
+                    <div class="msg-time">10:30 ص</div>
+                </div>
+
+                <div class="chat-msg received">
+                    <div class="msg-sender">أحمد علي</div>
+                    هناك جولة تفقدية بعد 30 دقيقة في مبنى الإنتاج
+                    <div class="msg-time">10:31 ص</div>
+                </div>
+
+                <div class="chat-msg sent">
+                    تم الاستعداد ✅
+                    <div class="msg-time">10:32 ص</div>
+                </div>
+
+                <div class="chat-msg received">
+                    <div class="msg-sender">فهد العتيبي</div>
+                    لا تنسوا التأكد من معدات الإطفاء 🧯
+                    <div class="msg-time">10:33 ص</div>
+                </div>
+            </div>
+
+            <div class="chat-input-bar">
+                <input type="text" placeholder="اكتب رسالة..." />
+                <button><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: INSPECTION (فحص سلامة) -->
+    <!-- ============================================================ -->
+    <div id="screen-inspection" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('home')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2>فحص سلامة</h2>
+        </div>
+        <div class="screen-container" style="flex:1;">
+            <div style="padding:20px;text-align:center;">
+                <div style="width:70px;height:70px;margin:0 auto 12px;background:var(--green-100);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-solid fa-clipboard-check" style="font-size:30px;color:var(--green-600);"></i>
+                </div>
+                <h3 style="font-size:18px;font-weight:800;color:var(--gray-800);">نموذج فحص طفاية حريق</h3>
+                <p style="font-size:13px;color:var(--gray-500);margin-top:4px;">FE-001 - مطفأة بودرة جافة</p>
+            </div>
+
+            <div class="form-container" style="padding-top:0;">
+                <div class="item-card" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:14px;font-weight:600;">ضغط المقياس سليم؟</span>
+                    <div style="display:flex;gap:8px;">
+                        <button class="badge badge-green" style="border:none;cursor:pointer;padding:6px 14px;font-size:12px;" onclick="this.style.opacity='1';this.nextElementSibling.style.opacity='0.4'">✓ نعم</button>
+                        <button class="badge badge-red" style="border:none;cursor:pointer;padding:6px 14px;font-size:12px;opacity:0.4;" onclick="this.style.opacity='1';this.previousElementSibling.style.opacity='0.4'">✗ لا</button>
+                    </div>
+                </div>
+                <div class="item-card" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:14px;font-weight:600;">الخرطوم سليم؟</span>
+                    <div style="display:flex;gap:8px;">
+                        <button class="badge badge-green" style="border:none;cursor:pointer;padding:6px 14px;font-size:12px;" onclick="this.style.opacity='1';this.nextElementSibling.style.opacity='0.4'">✓ نعم</button>
+                        <button class="badge badge-red" style="border:none;cursor:pointer;padding:6px 14px;font-size:12px;opacity:0.4;" onclick="this.style.opacity='1';this.previousElementSibling.style.opacity='0.4'">✗ لا</button>
+                    </div>
+                </div>
+                <div class="item-card" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:14px;font-weight:600;">ختم الأمان موجود؟</span>
+                    <div style="display:flex;gap:8px;">
+                        <button class="badge badge-green" style="border:none;cursor:pointer;padding:6px 14px;font-size:12px;" onclick="this.style.opacity='1';this.nextElementSibling.style.opacity='0.4'">✓ نعم</button>
+                        <button class="badge badge-red" style="border:none;cursor:pointer;padding:6px 14px;font-size:12px;opacity:0.4;" onclick="this.style.opacity='1';this.previousElementSibling.style.opacity='0.4'">✗ لا</button>
+                    </div>
+                </div>
+                <div class="item-card" style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:14px;font-weight:600;">الموقع مناسب وواضح؟</span>
+                    <div style="display:flex;gap:8px;">
+                        <button class="badge badge-green" style="border:none;cursor:pointer;padding:6px 14px;font-size:12px;" onclick="this.style.opacity='1';this.nextElementSibling.style.opacity='0.4'">✓ نعم</button>
+                        <button class="badge badge-red" style="border:none;cursor:pointer;padding:6px 14px;font-size:12px;opacity:0.4;" onclick="this.style.opacity='1';this.previousElementSibling.style.opacity='0.4'">✗ لا</button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:16px;">
+                    <label>ملاحظات</label>
+                    <textarea placeholder="أضف أي ملاحظات إضافية..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fa-solid fa-camera" style="color:var(--green-600);"></i> صورة الفحص</label>
+                    <div style="background:var(--gray-50);border:2px dashed var(--gray-300);border-radius:12px;padding:24px;text-align:center;cursor:pointer;">
+                        <i class="fa-solid fa-camera" style="font-size:28px;color:var(--gray-400);"></i>
+                        <p style="font-size:12px;color:var(--gray-400);margin-top:6px;">التقاط صورة</p>
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="alert('✅ تم حفظ الفحص بنجاح!\nالنتيجة: مطابق\nالتاريخ: 2024/06/20')">
+                    <i class="fa-solid fa-save"></i> حفظ نتيجة الفحص
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: TASKS -->
+    <!-- ============================================================ -->
+    <div id="screen-tasks" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('home')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2>مهام اليوم</h2>
+        </div>
+        <div class="screen-container" style="flex:1;">
+            <div class="list-container">
+                <div class="item-card priority-high">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <h4 style="font-size:14px;font-weight:700;">فحص طفايات مبنى الإنتاج</h4>
+                        <span class="badge badge-red">عاجل</span>
+                    </div>
+                    <p style="font-size:12px;color:var(--gray-500);">الموعد: 10:00 ص - اليوم</p>
+                    <div style="margin-top:8px;background:var(--gray-100);border-radius:8px;height:6px;overflow:hidden;">
+                        <div style="width:30%;height:100%;background:var(--green-500);border-radius:8px;"></div>
+                    </div>
+                    <span style="font-size:11px;color:var(--gray-400);margin-top:4px;display:block;">30% مكتمل</span>
+                </div>
+
+                <div class="item-card priority-medium">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <h4 style="font-size:14px;font-weight:700;">مراجعة تصريح العمل #015</h4>
+                        <span class="badge badge-orange">متوسط</span>
+                    </div>
+                    <p style="font-size:12px;color:var(--gray-500);">الموعد: 11:30 ص - اليوم</p>
+                    <div style="margin-top:8px;background:var(--gray-100);border-radius:8px;height:6px;overflow:hidden;">
+                        <div style="width:0%;height:100%;background:var(--orange-500);border-radius:8px;"></div>
+                    </div>
+                    <span style="font-size:11px;color:var(--gray-400);margin-top:4px;display:block;">لم يبدأ</span>
+                </div>
+
+                <div class="item-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <h4 style="font-size:14px;font-weight:700;">تحديث سجلات الصيانة</h4>
+                        <span class="badge badge-green">مكتمل</span>
+                    </div>
+                    <p style="font-size:12px;color:var(--gray-500);">الموعد: أمس - 02:00 م</p>
+                    <div style="margin-top:8px;background:var(--gray-100);border-radius:8px;height:6px;overflow:hidden;">
+                        <div style="width:100%;height:100%;background:var(--green-500);border-radius:8px;"></div>
+                    </div>
+                    <span style="font-size:11px;color:var(--gray-400);margin-top:4px;display:block;">100% مكتمل ✓</span>
+                </div>
+            </div>
+        </div>
+        <nav class="bottom-nav">
+            <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
+            <button class="nav-item active" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
+            <button class="nav-item" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
+        </nav>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: REPORTS -->
+    <!-- ============================================================ -->
+    <div id="screen-reports" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('home')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2>التقارير</h2>
+        </div>
+        <div class="screen-container" style="flex:1;">
+            <div style="padding:20px;">
+                <div class="section-title" style="padding:0;margin-bottom:16px;"><i class="fa-solid fa-chart-bar"></i> ملخص شهري</div>
+                <!-- Simple Bar Chart -->
+                <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:var(--shadow-sm);">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-end;height:120px;gap:12px;">
+                        <div style="flex:1;text-align:center;">
+                            <div style="background:var(--green-500);height:100px;border-radius:8px 8px 0 0;margin-bottom:6px;"></div>
+                            <span style="font-size:10px;color:var(--gray-500);">فحوصات</span>
+                        </div>
+                        <div style="flex:1;text-align:center;">
+                            <div style="background:var(--blue-500);height:60px;border-radius:8px 8px 0 0;margin-bottom:6px;"></div>
+                            <span style="font-size:10px;color:var(--gray-500);">تصاريح</span>
+                        </div>
+                        <div style="flex:1;text-align:center;">
+                            <div style="background:var(--orange-500);height:40px;border-radius:8px 8px 0 0;margin-bottom:6px;"></div>
+                            <span style="font-size:10px;color:var(--gray-500);">بلاغات</span>
+                        </div>
+                        <div style="flex:1;text-align:center;">
+                            <div style="background:var(--red-500);height:20px;border-radius:8px 8px 0 0;margin-bottom:6px;"></div>
+                            <span style="font-size:10px;color:var(--gray-500);">حوادث</span>
+                        </div>
+                        <div style="flex:1;text-align:center;">
+                            <div style="background:var(--yellow-500);height:50px;border-radius:8px 8px 0 0;margin-bottom:6px;"></div>
+                            <span style="font-size:10px;color:var(--gray-500);">انذارات</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:10px;margin-bottom:16px;">
+                    <button class="btn-primary" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;font-size:13px;"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+                    <button class="btn-outline" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;font-size:13px;"><i class="fa-solid fa-file-excel"></i> Excel</button>
+                </div>
+            </div>
+        </div>
+        <nav class="bottom-nav">
+            <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
+            <button class="nav-item" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item active" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
+            <button class="nav-item" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
+        </nav>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: SETTINGS -->
+    <!-- ============================================================ -->
+    <div id="screen-settings" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('home')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2>الإعدادات</h2>
+        </div>
+        <div class="screen-container" style="flex:1;">
+            <div style="text-align:center;padding:30px 20px;">
+                <div style="width:70px;height:70px;margin:0 auto 10px;background:var(--green-100);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--green-700);">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <h3 style="font-size:18px;font-weight:800;">المهندس خالد المنصور</h3>
+                <p style="font-size:13px;color:var(--gray-500);">مفتش أول سلامة (Admin)</p>
+            </div>
+
+            <div class="list-container">
+                <div class="item-card" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+                    <i class="fa-solid fa-building" style="color:var(--green-600);font-size:18px;width:24px;text-align:center;"></i>
+                    <span style="font-size:14px;font-weight:600;flex-grow:1;">بيانات المؤسسة</span>
+                    <i class="fa-solid fa-chevron-left" style="color:var(--gray-400);font-size:12px;"></i>
+                </div>
+                <div class="item-card" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+                    <i class="fa-solid fa-users" style="color:var(--blue-500);font-size:18px;width:24px;text-align:center;"></i>
+                    <span style="font-size:14px;font-weight:600;flex-grow:1;">إدارة المستخدمين</span>
+                    <i class="fa-solid fa-chevron-left" style="color:var(--gray-400);font-size:12px;"></i>
+                </div>
+                <div class="item-card" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+                    <i class="fa-solid fa-palette" style="color:var(--orange-500);font-size:18px;width:24px;text-align:center;"></i>
+                    <span style="font-size:14px;font-weight:600;flex-grow:1;">هوية المؤسسة والألوان</span>
+                    <i class="fa-solid fa-chevron-left" style="color:var(--gray-400);font-size:12px;"></i>
+                </div>
+                <div class="item-card" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+                    <i class="fa-solid fa-language" style="color:#7c3aed;font-size:18px;width:24px;text-align:center;"></i>
+                    <span style="font-size:14px;font-weight:600;flex-grow:1;">اللغة</span>
+                    <i class="fa-solid fa-chevron-left" style="color:var(--gray-400);font-size:12px;"></i>
+                </div>
+                <div class="item-card" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+                    <i class="fa-solid fa-bell" style="color:var(--yellow-500);font-size:18px;width:24px;text-align:center;"></i>
+                    <span style="font-size:14px;font-weight:600;flex-grow:1;">الإشعارات</span>
+                    <i class="fa-solid fa-chevron-left" style="color:var(--gray-400);font-size:12px;"></i>
+                </div>
+                <div class="item-card" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+                    <i class="fa-solid fa-right-from-bracket" style="color:var(--red-500);font-size:18px;width:24px;text-align:center;"></i>
+                    <span style="font-size:14px;font-weight:600;color:var(--red-500);flex-grow:1;">تسجيل الخروج</span>
+                </div>
+            </div>
+        </div>
+        <nav class="bottom-nav">
+            <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
+            <button class="nav-item" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
+            <button class="nav-item active" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
+        </nav>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: DOCUMENTS -->
+    <!-- ============================================================ -->
+    <div id="screen-documents" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('home')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2>مركز الوثائق</h2>
+        </div>
+        <div class="screen-container" style="flex:1;">
+            <div class="list-container">
+                <div class="item-card" style="display:flex;align-items:center;gap:14px;">
+                    <div style="width:44px;height:44px;background:var(--red-100);border-radius:10px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-file-pdf" style="color:var(--red-500);font-size:20px;"></i></div>
+                    <div style="flex:1;"><h4 style="font-size:14px;font-weight:700;">سياسة السلامة العامة</h4><p style="font-size:11px;color:var(--gray-400);">PDF - 2.3 MB</p></div>
+                </div>
+                <div class="item-card" style="display:flex;align-items:center;gap:14px;">
+                    <div style="width:44px;height:44px;background:var(--green-100);border-radius:10px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-file-excel" style="color:var(--green-700);font-size:20px;"></i></div>
+                    <div style="flex:1;"><h4 style="font-size:14px;font-weight:700;">سجل المعدات والمخزون</h4><p style="font-size:11px;color:var(--gray-400);">Excel - 1.1 MB</p></div>
+                </div>
+                <div class="item-card" style="display:flex;align-items:center;gap:14px;">
+                    <div style="width:44px;height:44px;background:var(--blue-100);border-radius:10px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-file-word" style="color:var(--blue-500);font-size:20px;"></i></div>
+                    <div style="flex:1;"><h4 style="font-size:14px;font-weight:700;">إجراءات التشغيل القياسية (SOP)</h4><p style="font-size:11px;color:var(--gray-400);">Word - 850 KB</p></div>
+                </div>
+                <div class="item-card" style="display:flex;align-items:center;gap:14px;">
+                    <div style="width:44px;height:44px;background:var(--orange-100);border-radius:10px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-file-shield" style="color:var(--orange-500);font-size:20px;"></i></div>
+                    <div style="flex:1;"><h4 style="font-size:14px;font-weight:700;">صحيفة بيانات السلامة (MSDS)</h4><p style="font-size:11px;color:var(--gray-400);">PDF - 4.7 MB</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Placeholder screens for notifications -->
+    <div id="screen-notifications" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header">
+            <button class="back-btn" onclick="showScreen('home')"><i class="fa-solid fa-arrow-right"></i></button>
+            <h2>الإشعارات</h2>
+        </div>
+        <div class="screen-container" style="flex:1;">
+            <div class="list-container">
+                <div class="item-card" style="border-right:4px solid var(--red-500);">
+                    <h4 style="font-size:14px;font-weight:700;color:var(--red-500);">🚨 تنبيه طوارئ</h4>
+                    <p style="font-size:12px;color:var(--gray-500);margin-top:4px;">تم الإبلاغ عن تسرب في القطاع الشمالي</p>
+                    <span style="font-size:11px;color:var(--gray-400);margin-top:6px;display:block;">منذ 5 دقائق</span>
+                </div>
+                <div class="item-card" style="border-right:4px solid var(--orange-500);">
+                    <h4 style="font-size:14px;font-weight:700;">📋 فحص مطلوب</h4>
+                    <p style="font-size:12px;color:var(--gray-500);margin-top:4px;">فحص طفاية FE-003 متأخر بيوم واحد</p>
+                    <span style="font-size:11px;color:var(--gray-400);margin-top:6px;display:block;">منذ ساعة</span>
+                </div>
+                <div class="item-card" style="border-right:4px solid var(--green-500);">
+                    <h4 style="font-size:14px;font-weight:700;">✅ تصريح معتمد</h4>
+                    <p style="font-size:12px;color:var(--gray-500);margin-top:4px;">تم اعتماد تصريح العمل #PTW-2024-015</p>
+                    <span style="font-size:11px;color:var(--gray-400);margin-top:6px;display:block;">منذ 3 ساعات</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /phone-frame -->
+
+<!-- ============================================================ -->
+<!-- EMERGENCY MODAL -->
+<!-- ============================================================ -->
+<div class="modal-overlay" id="emergencyModal">
+    <div class="modal-box">
+        <i class="fa-solid fa-phone-volume" style="font-size:40px;color:var(--red-500);"></i>
+        <h3>اتصل بالطوارئ</h3>
+        <p>اختر نوع الطوارئ لإرسال تنبيه فوري لفريق السلامة</p>
+        <div class="emergency-grid">
+            <div class="emg-item" onclick="triggerEmergency('حريق')">
+                <i style="color:var(--red-500);">🔥</i>
+                <span>حريق</span>
+            </div>
+            <div class="emg-item" onclick="triggerEmergency('إصابة')">
+                <i style="color:var(--orange-500);">🩹</i>
+                <span>إصابة</span>
+            </div>
+            <div class="emg-item" onclick="triggerEmergency('تسرب غاز')">
+                <i style="color:var(--yellow-500);">💨</i>
+                <span>تسرب غاز</span>
+            </div>
+            <div class="emg-item" onclick="triggerEmergency('تماس كهربائي')">
+                <i style="color:var(--blue-500);">⚡</i>
+                <span>تماس كهربائي</span>
+            </div>
+            <div class="emg-item" onclick="triggerEmergency('مواد خطرة')">
+                <i style="color:#7c3aed;">☢️</i>
+                <span>مواد خطرة</span>
+            </div>
+            <div class="emg-item" onclick="triggerEmergency('إخلاء')">
+                <i style="color:var(--green-700);">🚨</i>
+                <span>إخلاء</span>
+            </div>
+        </div>
+        <button class="modal-close" onclick="closeEmergency()">إلغاء</button>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCREEN: GITHUB SETUP -->
+<!-- ============================================================ -->
+<div id="screen-setup" class="screen" style="display:none;flex-direction:column;flex:1;">
+    <div class="sub-header" style="background:linear-gradient(135deg, #1f2937, #374151);">
+        <button class="back-btn" onclick="showScreen('home')"><i class="fa-solid fa-arrow-right"></i></button>
+        <h2><i class="fa-brands fa-github" style="margin-left:8px;"></i> ربط GitHub</h2>
+    </div>
+    <div class="screen-container" style="flex:1;">
+        <div style="text-align:center;padding:24px 20px 16px;">
+            <div style="width:70px;height:70px;margin:0 auto 12px;background:#1f2937;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                <i class="fa-brands fa-github" style="font-size:36px;color:white;"></i>
+            </div>
+            <h3 style="font-size:18px;font-weight:800;color:var(--gray-800);">إعداد مستودع البيانات</h3>
+            <p style="font-size:13px;color:var(--gray-500);margin-top:6px;line-height:1.6;">
+                جميع البيانات (المطافئ، الحوادث، التصاريح، الدردشة) ستُحفظ في مستودع GitHub الخاص بك
+            </p>
+        </div>
+
+        <div class="form-container" style="padding-top:0;">
+            <div id="gh-status" style="display:none;margin-bottom:16px;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:700;text-align:center;"></div>
+
+            <div class="form-group">
+                <label><i class="fa-solid fa-key" style="color:var(--green-600);"></i> Personal Access Token</label>
+                <input type="password" id="gh-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+                <p style="font-size:11px;color:var(--gray-400);margin-top:4px;">أنشئ Token من GitHub → Settings → Developer settings → Personal access tokens</p>
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-user" style="color:var(--blue-500);"></i> اسم المستخدم (Owner)</label>
+                <input type="text" id="gh-owner" placeholder="your-github-username" />
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-book" style="color:var(--orange-500);"></i> اسم المستودع (Repository)</label>
+                <input type="text" id="gh-repo" placeholder="kala_HSE" />
+            </div>
+            <div class="form-group">
+                <label><i class="fa-solid fa-code-branch" style="color:#7c3aed;"></i> الفرع (Branch)</label>
+                <input type="text" id="gh-branch" placeholder="main" value="main" />
+            </div>
+
+            <button class="btn-primary" onclick="connectGitHub()" id="gh-connect-btn">
+                <i class="fa-solid fa-plug"></i> اختبار الاتصال وربط البيانات
+            </button>
+
+            <div id="gh-connected-info" style="display:none;margin-top:16px;">
+                <div style="background:var(--green-50);border:1px solid var(--green-500);border-radius:12px;padding:16px;text-align:center;">
+                    <i class="fa-solid fa-check-circle" style="font-size:32px;color:var(--green-600);"></i>
+                    <p style="font-size:14px;font-weight:700;color:var(--green-700);margin-top:8px;" id="gh-user-name"></p>
+                    <p style="font-size:12px;color:var(--gray-500);">تم الربط بنجاح - البيانات تُزامن تلقائياً</p>
+                </div>
+                <button class="btn-primary" style="margin-top:12px;" onclick="initializeGitHubData()">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> رفع البيانات الأولية إلى GitHub
+                </button>
+                <button class="btn-primary" style="margin-top:8px;background:var(--green-600);" onclick="loadFromGitHub()">
+                    <i class="fa-solid fa-cloud-arrow-down"></i> تحميل البيانات من GitHub
+                </button>
+                <button style="margin-top:12px;background:var(--red-100);color:var(--red-500);border:1px solid var(--red-500);padding:12px;width:100%;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;" onclick="disconnectGitHub()">
+                    <i class="fa-solid fa-unlink"></i> فصل الاتصال
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LOADING OVERLAY -->
+<!-- ============================================================ -->
+<div id="loadingOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:99999;justify-content:center;align-items:center;">
+    <div style="background:white;border-radius:20px;padding:30px;text-align:center;width:280px;">
+        <div style="width:50px;height:50px;border:4px solid var(--gray-200);border-top-color:var(--green-600);border-radius:50%;margin:0 auto 16px;animation:spin 0.8s linear infinite;"></div>
+        <p id="loadingText" style="font-size:14px;font-weight:700;color:var(--gray-700);">جاري التحميل...</p>
+    </div>
+</div>
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+
+<!-- ============================================================ -->
+<!-- TOAST NOTIFICATION -->
+<!-- ============================================================ -->
+<div id="toast" style="display:none;position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#1f2937;color:white;padding:12px 24px;border-radius:12px;font-size:13px;font-weight:700;z-index:99999;box-shadow:0 8px 30px rgba(0,0,0,0.3);max-width:320px;text-align:center;"></div>
+
+<script src="js/github-service.js"></script>
+<script>
+    // ===== GLOBAL INSTANCES =====
+    const gh = new GitHubService();
+    const dm = new DataManager(gh);
+
+    // ===== SCREEN NAVIGATION =====
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => {
+            s.classList.remove('active');
+            s.style.display = 'none';
+        });
+        const target = document.getElementById('screen-' + id);
+        if (target) {
+            target.classList.add('active');
+            target.style.display = 'flex';
+        }
+        // Refresh data on screen switch
+        if (id === 'home') renderHome();
+        if (id === 'extinguishers') renderExtinguishers();
+        if (id === 'incidents') renderIncidents();
+        if (id === 'permits') renderPermits();
+        if (id === 'warnings') renderWarnings();
+        if (id === 'chat') renderChat();
+        if (id === 'setup') loadSetupForm();
+    }
+
+    // ===== LOADING / TOAST =====
+    function showLoading(msg) {
+        document.getElementById('loadingText').textContent = msg || 'جاري التحميل...';
+        document.getElementById('loadingOverlay').style.display = 'flex';
+    }
+    function hideLoading() {
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }
+    function showToast(msg, duration = 3000) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', duration);
+    }
+
+    // ===== EMERGENCY MODAL =====
+    function showEmergency() {
+        document.getElementById('emergencyModal').classList.add('show');
+    }
+    function closeEmergency() {
+        document.getElementById('emergencyModal').classList.remove('show');
+    }
+    async function triggerEmergency(type) {
+        closeEmergency();
+        showLoading('إرسال تنبيه الطوارئ...');
+        // Create an incident automatically
+        await dm.addIncident({
+            title: 'بلاغ طوارئ: ' + type,
+            description: 'تم إرسال بلاغ طوارئ تلقائي - النوع: ' + type,
+            location: 'الموقع الحالي',
+            priority: 'عالية',
+            status: 'قيد المعالجة',
+            type: type,
+            reported_by: 'USR-001',
+            assigned_to: '',
+            photos: [],
+            actions_taken: ''
+        });
+        hideLoading();
+        showToast('🚨 تم إرسال تنبيه الطوارئ وإنشاء سجل حادث!');
+    }
+
+    // ===== TAB SWITCHING =====
+    document.querySelectorAll('.tabs-row').forEach(row => {
+        row.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                row.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    });
+
+    // ===== RENDER: HOME STATS =====
+    function renderHome() {
+        const stats = dm.getStats();
+        const statsGrid = document.querySelector('#screen-home .stats-grid');
+        if (statsGrid) {
+            statsGrid.innerHTML = `
+                <div class="stat-card"><div class="stat-num">${stats.assets}</div><div class="stat-label">المطافئ</div></div>
+                <div class="stat-card"><div class="stat-num">${stats.permits_total}</div><div class="stat-label">تصاريح العمل</div></div>
+                <div class="stat-card"><div class="stat-num">${stats.warnings_active}</div><div class="stat-label">الانذارات<br>هذا الشهر</div></div>
+                <div class="stat-card"><div class="stat-num">${stats.inspections_total}</div><div class="stat-label">عمليات الفحص<br>المكتملة</div></div>
+            `;
+        }
+    }
+
+    // ===== RENDER: EXTINGUISHERS =====
+    function renderExtinguishers() {
+        const assets = dm.getAssets();
+        const container = document.querySelector('#screen-extinguishers .list-container');
+        if (!container) return;
+        if (assets.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-fire-extinguisher"></i><p>لا توجد معدات بعد</p></div>';
+            return;
+        }
+        container.innerHTML = assets.map(a => `
+            <div class="item-card ${a.status !== 'سليم' ? 'priority-high' : ''}" onclick="showScreen('extDetail')">
+                <div class="card-header">
+                    <div class="card-img" style="background:${a.status === 'سليم' ? 'var(--green-100);color:var(--green-700)' : 'var(--orange-100);color:var(--orange-500)'}">🧯</div>
+                    <div class="card-info">
+                        <h4>${a.name}</h4>
+                        <p>رقم: ${a.id}<br>الموقع: ${a.location}<br>الفحص القادم: ${a.next_inspection || '-'}</p>
+                    </div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span class="badge ${a.status === 'سليم' ? 'badge-green' : 'badge-orange'}">
+                        <i class="fa-solid fa-${a.status === 'سليم' ? 'check-circle' : 'exclamation-circle'}"></i> ${a.status}
+                    </span>
+                    <span style="font-size:11px;color:var(--gray-400);">آخر فحص: ${a.last_inspection || '-'}</span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // ===== RENDER: INCIDENTS =====
+    function renderIncidents() {
+        const incidents = dm.getIncidents();
+        const container = document.querySelector('#screen-incidents .list-container');
+        if (!container) return;
+        if (incidents.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-file-circle-exclamation"></i><p>لا توجد بلاغات</p></div>';
+            return;
+        }
+        container.innerHTML = incidents.map(inc => `
+            <div class="item-card ${inc.priority === 'عالية' ? 'priority-high' : inc.priority === 'متوسطة' ? 'priority-medium' : ''}">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <span style="font-size:13px;font-weight:800;color:var(--green-700);">#${inc.id}</span>
+                    <span class="badge ${inc.status === 'تم الحل' ? 'badge-green' : 'badge-orange'}">${inc.status}</span>
+                </div>
+                <h4 style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:6px;">${inc.title}</h4>
+                <p style="font-size:12px;color:var(--gray-500);line-height:1.6;">
+                    ${inc.description ? inc.description.substring(0, 80) + '...' : ''}<br>
+                    الموقع: ${inc.location}<br>
+                    الأولوية: <span style="color:${inc.priority === 'عالية' ? 'var(--red-500)' : 'var(--orange-500)'};font-weight:700;">${inc.priority}</span>
+                </p>
+            </div>
+        `).join('');
+    }
+
+    // ===== RENDER: PERMITS =====
+    function renderPermits() {
+        const permits = dm.getPermits();
+        const container = document.querySelector('#screen-permits .list-container');
+        if (!container) return;
+        if (permits.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fa-solid fa-id-card-clip"></i><p>لا توجد تصاريح</p></div>';
+            return;
+        }
+        container.innerHTML = permits.map(p => `
+            <div class="item-card" onclick="showScreen('permitDetail')">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <span style="font-size:13px;font-weight:800;color:var(--green-700);">#${p.id}</span>
+                    <span class="badge ${p.status === 'مغلق' ? 'badge-green' : 'badge-orange'}">${p.status}</span>
+                </div>
+                <h4 style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:6px;">${p.title}</h4>
+                <p style="font-size:12px;color:var(--gray-500);line-height:1.6;">
+                    النوع: ${p.type}<br>
+                    الموقع: ${p.location}
+                </p>
+            </div>
+        `).join('');
+    }
+
+    // ===== RENDER: WARNINGS =====
+    function renderWarnings() {
+        const warnings = dm.getWarnings();
+        const active = warnings.filter(w => w.status === 'نشط').length;
+        const expired = warnings.filter(w => w.status === 'منتهي').length;
+        // Update stats
+        const statsDiv = document.querySelector('#screen-warnings .warn-stats');
+        if (statsDiv) {
+            statsDiv.innerHTML = `
+                <div class="warn-stat"><div class="ws-num" style="color:var(--green-600);">${active}</div><div class="ws-label">انذارات نشطة</div></div>
+                <div class="warn-stat"><div class="ws-num" style="color:var(--red-500);">${expired}</div><div class="ws-label">انذارات منتهية</div></div>
+                <div class="warn-stat"><div class="ws-num" style="color:var(--blue-500);">${warnings.length}</div><div class="ws-label">إجمالي الانذارات</div></div>
+            `;
+        }
+        // Update list
+        const container = document.querySelector('#screen-warnings .list-container');
+        if (!container) return;
+        container.innerHTML = warnings.map(w => `
+            <div class="item-card ${w.severity === 'عالية' ? 'priority-high' : ''}">
+                <div class="card-header">
+                    <div class="card-img" style="background:var(--gray-100);border-radius:50%;width:48px;height:48px;font-size:20px;">👤</div>
+                    <div class="card-info">
+                        <h4>${w.employee_name}</h4>
+                        <p>${w.violation}<br>تاريخ الانذار: ${w.issued_date}<br>مدة الانذار: ${w.duration_days} يوم</p>
+                    </div>
+                </div>
+                <span class="badge ${w.status === 'نشط' ? 'badge-red' : 'badge-green'}">${w.status}</span>
+            </div>
+        `).join('');
+    }
+
+    // ===== RENDER: CHAT =====
+    function renderChat() {
+        const messages = dm.getChatMessages('ROOM-001');
+        const container = document.querySelector('#screen-chat .chat-container');
+        if (!container) return;
+        const currentUser = 'USR-001'; // logged in user
+        container.innerHTML = messages.map(m => {
+            const isSent = m.sender_id === currentUser;
+            const time = new Date(m.timestamp).toLocaleTimeString('ar-SA', {hour:'2-digit', minute:'2-digit'});
+            return `
+                <div class="chat-msg ${isSent ? 'sent' : 'received'}">
+                    ${!isSent ? '<div class="msg-sender">' + m.sender_name + '</div>' : ''}
+                    ${m.text}
+                    <div class="msg-time">${time}</div>
+                </div>
+            `;
+        }).join('');
+        // Scroll to bottom
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // ===== SEND CHAT MESSAGE =====
+    async function sendChatMessage() {
+        const input = document.querySelector('#screen-chat .chat-input-bar input');
+        const text = input.value.trim();
+        if (!text) return;
+        input.value = '';
+        await dm.sendMessage('ROOM-001', {
+            sender_id: 'USR-001',
+            sender_name: 'المهندس خالد المنصور',
+            text: text,
+            type: 'text'
+        });
+        renderChat();
+        showToast('✅ تم إرسال الرسالة');
+    }
+
+    // ===== SUBMIT INCIDENT =====
+    async function submitIncident() {
+        const form = document.querySelector('#screen-newIncident .form-container');
+        const title = form.querySelector('input[type="text"]').value.trim();
+        const desc = form.querySelector('textarea').value.trim();
+        const location = form.querySelector('select:first-of-type').value;
+        const priority = form.querySelectorAll('select')[1].value;
+
+        if (!title) { showToast('⚠️ الرجاء إدخال العنوان'); return; }
+
+        showLoading('إرسال البلاغ...');
+        await dm.addIncident({
+            title, description: desc, location, priority,
+            status: 'قيد المعالجة', type: 'بلاغ',
+            reported_by: 'USR-001', assigned_to: '',
+            photos: [], actions_taken: ''
+        });
+        hideLoading();
+        showToast('✅ تم إرسال البلاغ بنجاح!');
+        showScreen('incidents');
+    }
+
+    // ===== SUBMIT INSPECTION =====
+    async function submitInspection() {
+        showLoading('حفظ الفحص...');
+        const checks = document.querySelectorAll('#screen-inspection .item-card');
+        const checklist = [];
+        checks.forEach(card => {
+            const label = card.querySelector('span')?.textContent;
+            const passBtn = card.querySelector('.badge-green');
+            if (label && passBtn) {
+                checklist.push({ item: label, pass: passBtn.style.opacity !== '0.4' });
+            }
+        });
+        const notes = document.querySelector('#screen-inspection textarea')?.value || '';
+
+        await dm.addInspection({
+            asset_id: 'FE-001', asset_name: 'مطفأة بودرة جافة',
+            inspector_id: 'USR-001', inspector_name: 'المهندس خالد المنصور',
+            date: new Date().toISOString().split('T')[0],
+            result: checklist.every(c => c.pass) ? 'مطابق' : 'غير مطابق',
+            checklist, photos: [], notes,
+            gps_lat: 24.7136, gps_lng: 46.6753
+        });
+        hideLoading();
+        showToast('✅ تم حفظ الفحص بنجاح!');
+    }
+
+    // ===== GITHUB SETUP =====
+    function loadSetupForm() {
+        if (gh.isConfigured()) {
+            document.getElementById('gh-token').value = gh.token;
+            document.getElementById('gh-owner').value = gh.owner;
+            document.getElementById('gh-repo').value = gh.repo;
+            document.getElementById('gh-branch').value = gh.branch;
+            document.getElementById('gh-connected-info').style.display = 'block';
+            document.getElementById('gh-connect-btn').style.display = 'none';
+        } else {
+            document.getElementById('gh-connected-info').style.display = 'none';
+            document.getElementById('gh-connect-btn').style.display = 'block';
+        }
+    }
+
+    async function connectGitHub() {
+        const token = document.getElementById('gh-token').value.trim();
+        const owner = document.getElementById('gh-owner').value.trim();
+        const repo = document.getElementById('gh-repo').value.trim();
+        const branch = document.getElementById('gh-branch').value.trim() || 'main';
+
+        if (!token || !owner || !repo) {
+            showToast('⚠️ الرجاء ملء جميع الحقول');
+            return;
+        }
+
+        showLoading('جاري اختبار الاتصال بـ GitHub...');
+        gh.configure(token, owner, repo, branch);
+        const result = await gh.testConnection();
+        hideLoading();
+
+        const statusDiv = document.getElementById('gh-status');
+        if (result.success) {
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = 'var(--green-100)';
+            statusDiv.style.color = 'var(--green-700)';
+            statusDiv.innerHTML = '<i class="fa-solid fa-check-circle"></i> تم الاتصال بنجاح! المستخدم: ' + result.user;
+            document.getElementById('gh-user-name').textContent = '✅ متصل بحساب: ' + result.user;
+            document.getElementById('gh-connected-info').style.display = 'block';
+            document.getElementById('gh-connect-btn').style.display = 'none';
+            showToast('🎉 تم ربط GitHub بنجاح!');
+        } else {
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = 'var(--red-100)';
+            statusDiv.style.color = 'var(--red-500)';
+            statusDiv.innerHTML = '<i class="fa-solid fa-times-circle"></i> فشل الاتصال: ' + result.error;
+            gh.disconnect();
+        }
+    }
+
+    async function initializeGitHubData() {
+        showLoading('رفع البيانات الأولية إلى GitHub...');
+        try {
+            // Load local seed data files
+            const seedFiles = {
+                'users.json': dm.data.users || {"organization":{"name":"شركة السلامة المتقدمة"},"users":[]},
+                'assets.json': dm.data.assets || {"assets":[]},
+                'incidents.json': dm.data.incidents || {"incidents":[]},
+                'permits.json': dm.data.permits || {"permits":[]},
+                'warnings.json': dm.data.warnings || {"warnings":[]},
+                'chat.json': dm.data.chat || {"rooms":[]},
+                'inspections.json': dm.data.inspections || {"inspections":[]}
+            };
+            const results = await gh.initializeRepo(seedFiles);
+            hideLoading();
+            const created = results.filter(r => r.action === 'created').length;
+            const existing = results.filter(r => r.action === 'exists').length;
+            showToast(`✅ تم الرفع! (${created} ملف جديد، ${existing} موجود مسبقاً)`);
+        } catch (e) {
+            hideLoading();
+            showToast('❌ خطأ: ' + e.message);
+        }
+    }
+
+    async function loadFromGitHub() {
+        showLoading('تحميل البيانات من GitHub...');
+        const results = await dm.loadAll();
+        hideLoading();
+        renderHome();
+        const fromGH = Object.values(results).filter(v => v === 'github').length;
+        showToast(`✅ تم تحميل ${fromGH} ملفات من GitHub`);
+    }
+
+    function disconnectGitHub() {
+        if (confirm('هل أنت متأكد من فصل الاتصال بـ GitHub؟')) {
+            gh.disconnect();
+            document.getElementById('gh-connected-info').style.display = 'none';
+            document.getElementById('gh-connect-btn').style.display = 'block';
+            document.getElementById('gh-status').style.display = 'none';
+            showToast('تم فصل الاتصال بـ GitHub');
+        }
+    }
+
+    // ===== CHAT INPUT SETUP =====
+    document.addEventListener('DOMContentLoaded', () => {
+        // Wire chat send button
+        const chatSendBtn = document.querySelector('#screen-chat .chat-input-bar button');
+        if (chatSendBtn) chatSendBtn.onclick = sendChatMessage;
+        const chatInput = document.querySelector('#screen-chat .chat-input-bar input');
+        if (chatInput) chatInput.onkeypress = (e) => { if (e.key === 'Enter') sendChatMessage(); };
+
+        // Wire incident form submit
+        const incidentSubmitBtn = document.querySelector('#screen-newIncident .btn-primary');
+        if (incidentSubmitBtn) incidentSubmitBtn.onclick = submitIncident;
+
+        // Wire inspection submit
+        const inspSubmitBtn = document.querySelector('#screen-inspection .btn-primary');
+        if (inspSubmitBtn) inspSubmitBtn.onclick = submitInspection;
+
+        // Add GitHub setup link to settings
+        const settingsList = document.querySelector('#screen-settings .list-container');
+        if (settingsList) {
+            const ghItem = document.createElement('div');
+            ghItem.className = 'item-card';
+            ghItem.style.cssText = 'display:flex;align-items:center;gap:12px;cursor:pointer;';
+            ghItem.innerHTML = '<i class="fa-brands fa-github" style="color:#1f2937;font-size:18px;width:24px;text-align:center;"></i><span style="font-size:14px;font-weight:600;flex-grow:1;">ربط GitHub (قاعدة البيانات)</span><i class="fa-solid fa-chevron-left" style="color:var(--gray-400);font-size:12px;"></i>';
+            ghItem.onclick = () => showScreen('setup');
+            settingsList.insertBefore(ghItem, settingsList.children[2]);
+        }
+    });
+
+    // ===== SEED DATA (embedded for first run) =====
+    const SEED_DATA = {
+        users: {"organization":{"name":"شركة السلامة المتقدمة","name_en":"SafeCore Industries","logo":"","primary_color":"#166534","secondary_color":"#22c55e","branches":["المقر الرئيسي","فرع المستودعات","فرع الإنتاج"],"departments":["السلامة","الصيانة","الإنتاج","الإدارة"]},"users":[{"id":"USR-001","name":"المهندس خالد المنصور","email":"khalid@safecore.com","role":"admin","title":"مفتش أول سلامة","active":true},{"id":"USR-002","name":"أحمد علي","email":"ahmed@safecore.com","role":"member","title":"فني سلامة","active":true},{"id":"USR-003","name":"سامي الحربي","email":"sami@safecore.com","role":"member","title":"مراقب سلامة","active":true},{"id":"USR-004","name":"فهد العتيبي","email":"fahad@safecore.com","role":"member","title":"رئيس قسم الصيانة","active":true},{"id":"USR-005","name":"محمد خالد","email":"mohammed@safecore.com","role":"member","title":"مهندس سلامة","active":true}]},
+        assets: {"assets":[{"id":"FE-001","type":"fire_extinguisher","name":"مطفأة بودرة جافة","subtype":"بودرة جافة (ABC)","location":"مبنى الإنتاج - الدور الأرضي","status":"سليم","last_inspection":"2024-05-20","next_inspection":"2024-06-20"},{"id":"FE-002","type":"fire_extinguisher","name":"مطفأة ثاني أكسيد الكربون","subtype":"CO2","location":"المستودع - الجهة الشمالية","status":"سليم","last_inspection":"2024-05-18","next_inspection":"2024-06-18"},{"id":"FE-003","type":"fire_extinguisher","name":"مطفأة رغوية","subtype":"رغوية (Foam)","location":"مبنى الإدارة - الدور الأول","status":"يحتاج فحص","last_inspection":"2024-05-15","next_inspection":"2024-06-15"},{"id":"FA-001","type":"first_aid","name":"صندوق إسعافات أولية","location":"مبنى الإنتاج - مدخل رئيسي","status":"سليم","last_inspection":"2024-05-10","next_inspection":"2024-06-10"},{"id":"EX-001","type":"emergency_exit","name":"باب طوارئ رئيسي","location":"مبنى الإنتاج - الجهة الغربية","status":"سليم","last_inspection":"2024-05-20","next_inspection":"2024-06-20"}]},
+        incidents: {"incidents":[{"id":"SC-2024-0001","title":"رصد تسرب زيت في ماكينة رقم (3)","description":"تم رصد تسرب زيت من ماكينة الإنتاج رقم 3 بكمية ملحوظة على الأرضية مما يشكل خطر انزلاق","location":"مبنى الإنتاج - الخط الأول","priority":"عالية","status":"قيد المعالجة","reported_by":"USR-002","assigned_to":"USR-005","created_at":"2024-05-21T10:30:00Z"},{"id":"SC-2024-0002","title":"إضاءة طوارئ لا تعمل","description":"إضاءة الطوارئ في الممر الرئيسي لمبنى الإدارة لا تعمل عند انقطاع التيار","location":"مبنى الإدارة - الممر الرئيسي","priority":"متوسطة","status":"تم الحل","reported_by":"USR-003","assigned_to":"USR-004","created_at":"2024-05-20T09:15:00Z"}]},
+        permits: {"permits":[{"id":"PTW-2024-015","title":"عمل لحام في خزان الوقود","type":"أعمال ساخنة","description":"سيتم تنفيذ أعمال لحام في خزان الوقود رقم (5)","location":"خزان الوقود رقم 5","status":"مفتوح","signatures":[{"user_id":"USR-002","role":"مقدم الطلب","signed":true},{"user_id":"USR-003","role":"مسؤول السلامة","signed":true},{"user_id":"USR-004","role":"رئيس القسم","signed":true}]},{"id":"PTW-2024-014","title":"صيانة كهربائية","type":"أعمال كهربائية","description":"صيانة لوحة التوزيع الرئيسية","location":"لوحة التوزيع الرئيسية","status":"مغلق","signatures":[]}]},
+        warnings: {"warnings":[{"id":"WRN-001","employee_name":"أحمد علي","violation":"مخالفة عدم ارتداء معدات الوقاية","severity":"عالية","status":"نشط","issued_date":"2024-05-15","duration_days":30},{"id":"WRN-002","employee_name":"محمد خالد","violation":"مخالفة التدخين في المنطقة المحظورة","severity":"متوسطة","status":"منتهي","issued_date":"2024-04-20","duration_days":30}]},
+        chat: {"rooms":[{"id":"ROOM-001","name":"فريق السلامة","members":["USR-001","USR-002","USR-003","USR-004","USR-005"],"messages":[{"id":"MSG-001","sender_id":"USR-002","sender_name":"أحمد علي","text":"السلام عليكم ورحمة الله وبركاته 👋","type":"text","timestamp":"2024-05-22T10:30:00Z"},{"id":"MSG-002","sender_id":"USR-002","sender_name":"أحمد علي","text":"هناك جولة تفقدية بعد 30 دقيقة في مبنى الإنتاج","type":"text","timestamp":"2024-05-22T10:31:00Z"},{"id":"MSG-003","sender_id":"USR-001","sender_name":"المهندس خالد المنصور","text":"تم الاستعداد ✅","type":"text","timestamp":"2024-05-22T10:32:00Z"},{"id":"MSG-004","sender_id":"USR-004","sender_name":"فهد العتيبي","text":"لا تنسوا التأكد من معدات الإطفاء 🧯","type":"text","timestamp":"2024-05-22T10:33:00Z"}]}]},
+        inspections: {"inspections":[{"id":"INS-001","asset_id":"FE-001","asset_name":"مطفأة بودرة جافة","inspector_name":"المهندس خالد المنصور","date":"2024-05-20","result":"مطابق","checklist":[{"item":"ضغط المقياس سليم","pass":true},{"item":"الخرطوم سليم","pass":true}]},{"id":"INS-002","asset_id":"FE-003","asset_name":"مطفأة رغوية","inspector_name":"سامي الحربي","date":"2024-05-15","result":"غير مطابق","checklist":[{"item":"ضغط المقياس سليم","pass":true},{"item":"الخرطوم سليم","pass":false}]}]}
+    };
+
+    // ===== INITIAL LOAD =====
+    (async function init() {
+        // Load from localStorage, or use seed data on first run
+        const localKeys = ['users','assets','incidents','permits','warnings','chat','inspections'];
+        localKeys.forEach(key => {
+            const local = localStorage.getItem('hse_' + key);
+            if (local) {
+                dm.data[key] = JSON.parse(local);
+            } else if (SEED_DATA[key]) {
+                dm.data[key] = SEED_DATA[key];
+                localStorage.setItem('hse_' + key, JSON.stringify(SEED_DATA[key]));
+            }
+        });
+        renderHome();
+
+        // If GitHub configured, sync in background
+        if (gh.isConfigured()) {
+            try {
+                await dm.loadAll();
+                renderHome();
+            } catch (e) {
+                console.warn('GitHub sync failed, using local data:', e);
+            }
+        }
+    })();
+
+    // ===== REGISTER SERVICE WORKER =====
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(reg => console.log('Service Worker registered successfully!', reg.scope))
+                .catch(err => console.warn('Service Worker registration failed:', err));
+        });
+    }
+</script>
+</body>
+</html>
