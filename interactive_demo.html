@@ -166,8 +166,12 @@
         .screen {
             display: none;
             animation: fadeIn 0.3s ease;
+            height: 100vh;
+            max-height: 100vh;
+            flex-direction: column;
+            overflow: hidden;
         }
-        .screen.active { display: block; }
+        .screen.active { display: flex; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -681,8 +685,10 @@
             background: var(--white);
             border-top: 1px solid var(--gray-200);
             padding: 8px 0 12px;
-            position: relative;
+            position: sticky;
+            bottom: 0;
             z-index: 100;
+            margin-top: auto;
         }
         .nav-item {
             flex: 1;
@@ -808,13 +814,61 @@
 <body>
 
 <div class="phone-frame">
-    <!-- Status Bar -->
-    <div class="status-bar">
-        <span class="time">9:41</span>
-        <div style="display:flex;gap:6px;align-items:center;">
-            <i class="fa-solid fa-signal" style="font-size:11px;"></i>
-            <i class="fa-solid fa-wifi" style="font-size:11px;"></i>
-            <i class="fa-solid fa-battery-full" style="font-size:11px;"></i>
+
+    <!-- ============================================================ -->
+    <!-- SCREEN: FIRST TIME SETUP -->
+    <!-- ============================================================ -->
+    <div id="screen-firstSetup" class="screen" style="display:none;flex-direction:column;flex:1;">
+        <div class="sub-header" style="background:linear-gradient(135deg, #15803d, #166534);">
+            <h2>تهيئة النظام لأول مرة | SafeCore HSE</h2>
+        </div>
+        <div class="screen-container" style="flex:1;padding:20px;">
+            <div style="text-align:center;margin-bottom:20px;">
+                <div style="width:70px;height:70px;margin:0 auto 12px;background:var(--green-100);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-solid fa-shield-halved" style="font-size:32px;color:var(--green-700);"></i>
+                </div>
+                <h3 style="font-size:18px;font-weight:800;color:var(--gray-800);">مرحباً بك في لوحة تحكم الآدمن</h3>
+                <p style="font-size:13px;color:var(--gray-500);margin-top:4px;">يرجى تهيئة بيانات المؤسسة والمسؤول الرئيسي للبدء</p>
+            </div>
+
+            <div class="form-container" style="padding-top:0;">
+                <div class="form-group">
+                    <label>اسم المسؤول الرئيسي (الآدمن)</label>
+                    <input type="text" id="setup-admin-name" placeholder="مثال: المهندس خالد المنصور" value="المهندس خالد المنصور" />
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني للآدمن</label>
+                    <input type="email" id="setup-admin-email" placeholder="admin@company.com" value="admin@safecore.com" />
+                </div>
+                <div class="form-group">
+                    <label>اسم المؤسسة / الشركة</label>
+                    <input type="text" id="setup-org-name" placeholder="مثال: الشركة الوطنية للمياه" value="الشركة الوطنية للمياه" />
+                </div>
+                <div class="form-group">
+                    <label>القطاع / النشاط</label>
+                    <select id="setup-org-sector">
+                        <option value="صناعي">صناعي / مصانع</option>
+                        <option value="إنشائي">إنشائي / مقاولات</option>
+                        <option value="صحي">صحي / مستشفيات</option>
+                        <option value="خدمي">خدمي / موانئ ومطارات</option>
+                        <option value="تعليمي">تعليمي / جامعات</option>
+                    </select>
+                </div>
+                
+                <div style="border:1px solid var(--gray-200);border-radius:12px;padding:12px;margin-bottom:16px;background:var(--gray-50);">
+                    <h4 style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--gray-700);">إعدادات ربط قاعدة البيانات (GitHub) - اختياري</h4>
+                    <div class="form-group" style="margin-bottom:8px;">
+                        <input type="text" id="setup-github-token" placeholder="رمز توكن GitHub (Personal Access Token)" value="" />
+                    </div>
+                    <div class="form-group" style="margin-bottom:8px;">
+                        <input type="text" id="setup-github-repo" placeholder="المستودع (مثال: lootb8890-hue/safecore-hse)" value="lootb8890-hue/safecore-hse" />
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="saveFirstTimeSetup()" style="background:var(--green-700);border:none;">
+                    <i class="fa-solid fa-circle-check"></i> حفظ وتهيئة النظام 🚀
+                </button>
+            </div>
         </div>
     </div>
 
@@ -935,10 +989,7 @@
                 <i class="fa-solid fa-house"></i>
                 <span>الرئيسية</span>
             </button>
-            <button class="nav-item" onclick="showScreen('tasks')">
-                <i class="fa-solid fa-list-check"></i>
-                <span>المهام</span>
-            </button>
+            <button class="nav-item" onclick="showScreen('calendar')"><i class="fa-solid fa-calendar-days"></i><span>التقويم</span></button>
             <button class="nav-item" onclick="showScreen('reports')">
                 <i class="fa-solid fa-chart-pie"></i>
                 <span>التقارير</span>
@@ -1017,7 +1068,7 @@
         <button class="fab" onclick="showScreen('addExtinguisher')"><i class="fa-solid fa-plus"></i></button>
         <nav class="bottom-nav">
             <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
-            <button class="nav-item" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item" onclick="showScreen('calendar')"><i class="fa-solid fa-calendar-days"></i><span>التقويم</span></button>
             <button class="nav-item" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
             <button class="nav-item" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
         </nav>
@@ -1084,7 +1135,7 @@
         <button class="fab" onclick="showScreen('newIncident')"><i class="fa-solid fa-plus"></i></button>
         <nav class="bottom-nav">
             <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
-            <button class="nav-item" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item" onclick="showScreen('calendar')"><i class="fa-solid fa-calendar-days"></i><span>التقويم</span></button>
             <button class="nav-item" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
             <button class="nav-item" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
         </nav>
@@ -1186,7 +1237,7 @@
         <button class="fab" onclick="alert('+ تصريح عمل جديد')"><i class="fa-solid fa-plus"></i></button>
         <nav class="bottom-nav">
             <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
-            <button class="nav-item" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item" onclick="showScreen('calendar')"><i class="fa-solid fa-calendar-days"></i><span>التقويم</span></button>
             <button class="nav-item" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
             <button class="nav-item" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
         </nav>
@@ -1293,7 +1344,7 @@
         <button class="fab" onclick="alert('+ إنذار جديد')"><i class="fa-solid fa-plus"></i></button>
         <nav class="bottom-nav">
             <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
-            <button class="nav-item" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item" onclick="showScreen('calendar')"><i class="fa-solid fa-calendar-days"></i><span>التقويم</span></button>
             <button class="nav-item" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
             <button class="nav-item" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
         </nav>
@@ -1410,55 +1461,40 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- SCREEN: TASKS -->
+    <!-- SCREEN: CALENDAR -->
     <!-- ============================================================ -->
-    <div id="screen-tasks" class="screen" style="display:none;flex-direction:column;flex:1;">
+    <div id="screen-calendar" class="screen" style="display:none;flex-direction:column;flex:1;">
         <div class="sub-header">
             <button class="back-btn" onclick="showScreen('home')"><i class="fa-solid fa-arrow-right"></i></button>
-            <h2>مهام اليوم</h2>
+            <h2>التقويم الزمني للأحداث</h2>
         </div>
-        <div class="screen-container" style="flex:1;">
-            <div class="list-container">
-                <div class="item-card priority-high">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                        <h4 style="font-size:14px;font-weight:700;">فحص طفايات مبنى الإنتاج</h4>
-                        <span class="badge badge-red">عاجل</span>
-                    </div>
-                    <p style="font-size:12px;color:var(--gray-500);">الموعد: 10:00 ص - اليوم</p>
-                    <div style="margin-top:8px;background:var(--gray-100);border-radius:8px;height:6px;overflow:hidden;">
-                        <div style="width:30%;height:100%;background:var(--green-500);border-radius:8px;"></div>
-                    </div>
-                    <span style="font-size:11px;color:var(--gray-400);margin-top:4px;display:block;">30% مكتمل</span>
-                </div>
+        <div class="screen-container" style="flex:1;padding:16px;">
+            <!-- Month Header -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;background:var(--green-50);padding:12px;border-radius:12px;border:1px solid var(--green-100);">
+                <button onclick="changeCalendarMonth(-1)" style="background:none;border:none;color:var(--green-700);cursor:pointer;font-size:16px;"><i class="fa-solid fa-chevron-right"></i></button>
+                <h3 id="calendar-month-name" style="font-size:16px;font-weight:800;color:var(--green-800);">يوليو 2026</h3>
+                <button onclick="changeCalendarMonth(1)" style="background:none;border:none;color:var(--green-700);cursor:pointer;font-size:16px;"><i class="fa-solid fa-chevron-left"></i></button>
+            </div>
 
-                <div class="item-card priority-medium">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                        <h4 style="font-size:14px;font-weight:700;">مراجعة تصريح العمل #015</h4>
-                        <span class="badge badge-orange">متوسط</span>
-                    </div>
-                    <p style="font-size:12px;color:var(--gray-500);">الموعد: 11:30 ص - اليوم</p>
-                    <div style="margin-top:8px;background:var(--gray-100);border-radius:8px;height:6px;overflow:hidden;">
-                        <div style="width:0%;height:100%;background:var(--orange-500);border-radius:8px;"></div>
-                    </div>
-                    <span style="font-size:11px;color:var(--gray-400);margin-top:4px;display:block;">لم يبدأ</span>
-                </div>
+            <!-- Calendar Grid -->
+            <div style="display:grid;grid-template-columns:repeat(7, 1fr);gap:6px;text-align:center;font-size:12px;font-weight:700;color:var(--gray-500);margin-bottom:8px;">
+                <div>السبت</div><div>الأحد</div><div>الاثنين</div><div>الثلاثاء</div><div>الأربعاء</div><div>الخميس</div><div>الجمعة</div>
+            </div>
+            <div id="calendar-days-grid" style="display:grid;grid-template-columns:repeat(7, 1fr);gap:6px;margin-bottom:20px;">
+                <!-- Dynamically populated -->
+            </div>
 
-                <div class="item-card">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                        <h4 style="font-size:14px;font-weight:700;">تحديث سجلات الصيانة</h4>
-                        <span class="badge badge-green">مكتمل</span>
-                    </div>
-                    <p style="font-size:12px;color:var(--gray-500);">الموعد: أمس - 02:00 م</p>
-                    <div style="margin-top:8px;background:var(--gray-100);border-radius:8px;height:6px;overflow:hidden;">
-                        <div style="width:100%;height:100%;background:var(--green-500);border-radius:8px;"></div>
-                    </div>
-                    <span style="font-size:11px;color:var(--gray-400);margin-top:4px;display:block;">100% مكتمل ✓</span>
+            <!-- Events List for Selected Day -->
+            <div id="selected-day-events-box" style="background:var(--white);border:1px solid var(--gray-200);border-radius:16px;padding:16px;box-shadow:var(--shadow-sm);">
+                <h4 style="font-size:14px;font-weight:800;color:var(--gray-800);margin-bottom:12px;" id="selected-day-label">أحداث اليوم المحدد</h4>
+                <div id="selected-day-events-list">
+                    <!-- Event cards populated dynamically -->
                 </div>
             </div>
         </div>
         <nav class="bottom-nav">
             <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
-            <button class="nav-item active" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item active" onclick="showScreen('calendar')"><i class="fa-solid fa-calendar-days"></i><span>التقويم</span></button>
             <button class="nav-item" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
             <button class="nav-item" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
         </nav>
@@ -1509,7 +1545,7 @@
         </div>
         <nav class="bottom-nav">
             <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
-            <button class="nav-item" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item" onclick="showScreen('calendar')"><i class="fa-solid fa-calendar-days"></i><span>التقويم</span></button>
             <button class="nav-item active" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
             <button class="nav-item" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
         </nav>
@@ -1533,7 +1569,7 @@
             </div>
 
             <div class="list-container">
-                <div class="item-card" style="display:flex;align-items:center;gap:12px;cursor:pointer;">
+                <div class="item-card" style="display:flex;align-items:center;gap:12px;cursor:pointer;" onclick="editSetupData()">
                     <i class="fa-solid fa-building" style="color:var(--green-600);font-size:18px;width:24px;text-align:center;"></i>
                     <span style="font-size:14px;font-weight:600;flex-grow:1;">بيانات المؤسسة</span>
                     <i class="fa-solid fa-chevron-left" style="color:var(--gray-400);font-size:12px;"></i>
@@ -1566,7 +1602,7 @@
         </div>
         <nav class="bottom-nav">
             <button class="nav-item" onclick="showScreen('home')"><i class="fa-solid fa-house"></i><span>الرئيسية</span></button>
-            <button class="nav-item" onclick="showScreen('tasks')"><i class="fa-solid fa-list-check"></i><span>المهام</span></button>
+            <button class="nav-item" onclick="showScreen('calendar')"><i class="fa-solid fa-calendar-days"></i><span>التقويم</span></button>
             <button class="nav-item" onclick="showScreen('reports')"><i class="fa-solid fa-chart-pie"></i><span>التقارير</span></button>
             <button class="nav-item active" onclick="showScreen('settings')"><i class="fa-solid fa-gear"></i><span>الإعدادات</span></button>
         </nav>
@@ -1645,12 +1681,12 @@
                 </div>
                 <div class="form-group">
                     <label>النوع</label>
-                    <select id="add-ext-subtype">
-                        <option value="ABC بودرة جافة">ABC بودرة جافة</option>
-                        <option value="ثاني أكسيد الكربون (CO2)">ثاني أكسيد الكربون (CO2)</option>
-                        <option value="رغوية (Foam)">رغوية (Foam)</option>
-                        <option value="بودرة رطبة">كيميائي رطب</option>
-                    </select>
+                    <div style="display:flex;gap:8px;">
+                        <select id="add-ext-subtype" style="flex:1;">
+                            <!-- Populated dynamically -->
+                        </select>
+                        <button type="button" class="btn-primary" onclick="addNewExtinguisherTypePrompt()" style="padding:0 12px;font-size:16px;white-space:nowrap;background:var(--green-700);border:none;">+ إضافة نوع</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>الموقع التفصيلي</label>
@@ -1932,9 +1968,17 @@
 
     // ===== GLOBAL STATE =====
     let selectedAssetId = null;
+    let extinguisherTypes = ['ABC بودرة جافة', 'ثاني أكسيد الكربون (CO2)', 'رغوية (Foam)', 'كيميائي رطب', 'مطفأة الكرة المتفجرة'];
+    let currentCalendarDate = new Date(2026, 6, 28); // July 28, 2026 corresponding to the user's current date context
 
     // ===== SCREEN NAVIGATION =====
     function showScreen(id) {
+        // Enforce first time setup redirection
+        const configured = localStorage.getItem('hse_configured') === 'true';
+        if (!configured && id !== 'firstSetup') {
+            id = 'firstSetup';
+        }
+
         document.querySelectorAll('.screen').forEach(s => {
             s.classList.remove('active');
             s.style.display = 'none';
@@ -1954,6 +1998,8 @@
         if (id === 'setup') loadSetupForm();
         if (id === 'users') renderUsers();
         if (id === 'qr') renderQrSimulator();
+        if (id === 'addExtinguisher') populateExtinguisherTypes();
+        if (id === 'calendar') renderCalendarGrid();
     }
 
     // ===== DETAILED EXTINGUISHER VIEW =====
@@ -2612,6 +2658,305 @@
         inspections: {"inspections":[{"id":"INS-001","asset_id":"FE-001","asset_name":"مطفأة بودرة جافة","inspector_name":"المهندس خالد المنصور","date":"2024-05-20","result":"مطابق","checklist":[{"item":"ضغط المقياس سليم","pass":true},{"item":"الخرطوم سليم","pass":true}]},{"id":"INS-002","asset_id":"FE-003","asset_name":"مطفأة رغوية","inspector_name":"سامي الحربي","date":"2024-05-15","result":"غير مطابق","checklist":[{"item":"ضغط المقياس سليم","pass":true},{"item":"الخرطوم سليم","pass":false}]}]}
     };
 
+    // ===== FIRST TIME SETUP & ADMIN CONFIGURATION =====
+    async function saveFirstTimeSetup() {
+        const adminName = document.getElementById('setup-admin-name').value.trim();
+        const adminEmail = document.getElementById('setup-admin-email').value.trim();
+        const orgName = document.getElementById('setup-org-name').value.trim();
+        const sector = document.getElementById('setup-org-sector').value;
+        const token = document.getElementById('setup-github-token').value.trim();
+        const repo = document.getElementById('setup-github-repo').value.trim();
+
+        if (!adminName || !adminEmail || !orgName) {
+            showToast('⚠️ الرجاء ملء الحقول الرئيسية (الاسم، البريد، اسم المؤسسة)');
+            return;
+        }
+
+        showLoading('جاري تهيئة النظام...');
+
+        // 1. Save local storage git config if token is provided
+        if (token && repo) {
+            localStorage.setItem('hse_github_token', token);
+            localStorage.setItem('hse_github_repo', repo);
+            gh.configure(token, repo);
+        }
+
+        // 2. Prepare user database with Admin info
+        const userDb = {
+            organization: {
+                name: orgName,
+                sector: sector,
+                logo: "",
+                branches: ["المقر الرئيسي", "الفرع الشمالي", "فرع التشغيل"],
+                departments: ["السلامة والبيئة", "الصيانة", "التشغيل"]
+            },
+            users: [
+                {
+                    id: "USR-001",
+                    name: adminName,
+                    email: adminEmail,
+                    role: "admin",
+                    title: "مسؤول السلامة الرئيسي",
+                    phone: "",
+                    active: true,
+                    created_at: new Date().toISOString()
+                }
+            ]
+        };
+
+        dm.data.users = userDb;
+        localStorage.setItem('hse_users', JSON.stringify(userDb));
+
+        // Save status
+        localStorage.setItem('hse_configured', 'true');
+
+        // Save types seed
+        if (!localStorage.getItem('hse_ext_types')) {
+            localStorage.setItem('hse_ext_types', JSON.stringify(extinguisherTypes));
+        }
+
+        // Push to github in background if configured
+        if (gh.isConfigured()) {
+            try {
+                await dm.save('users');
+            } catch (e) {
+                console.warn('GitHub save failed during setup:', e);
+            }
+        }
+
+        hideLoading();
+        showToast('🎉 تم تهيئة النظام وحفظ بيانات الآدمن والمؤسسة بنجاح!');
+        
+        // Reset sub-header if edited
+        const firstSetupHeader = document.querySelector('#screen-firstSetup h2');
+        if (firstSetupHeader) firstSetupHeader.textContent = "تهيئة النظام لأول مرة | SafeCore HSE";
+
+        // Go home
+        showScreen('home');
+    }
+
+    function editSetupData() {
+        // Pre-fill setup fields from database
+        const org = dm.getOrganization();
+        const users = dm.getUsers();
+        const adminUser = users.find(u => u.role === 'admin') || { name: '', email: '' };
+
+        document.getElementById('setup-admin-name').value = adminUser.name || '';
+        document.getElementById('setup-admin-email').value = adminUser.email || '';
+        document.getElementById('setup-org-name').value = org.name || '';
+        document.getElementById('setup-org-sector').value = org.sector || 'صناعي';
+        document.getElementById('setup-github-token').value = localStorage.getItem('hse_github_token') || '';
+        document.getElementById('setup-github-repo').value = localStorage.getItem('hse_github_repo') || '';
+
+        // Change Title and Back Button
+        const header = document.querySelector('#screen-firstSetup h2');
+        if (header) header.textContent = "تعديل بيانات المؤسسة والآدمن";
+
+        // Temporary change back button or prompt to allow going back to settings
+        const backBtn = document.querySelector('#screen-firstSetup .back-btn');
+        if (!backBtn) {
+            const subH = document.querySelector('#screen-firstSetup .sub-header');
+            const btn = document.createElement('button');
+            btn.className = 'back-btn';
+            btn.onclick = () => showScreen('settings');
+            btn.innerHTML = '<i class="fa-solid fa-arrow-right"></i>';
+            subH.insertBefore(btn, subH.firstChild);
+        } else {
+            backBtn.onclick = () => showScreen('settings');
+        }
+
+        // Un-restrict redirect
+        localStorage.setItem('hse_configured', 'true'); 
+        showScreen('firstSetup');
+    }
+
+    // ===== CALENDAR ENGINE =====
+    function changeCalendarMonth(direction) {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+        renderCalendarGrid();
+    }
+
+    function renderCalendarGrid() {
+        const grid = document.getElementById('calendar-days-grid');
+        const monthLabel = document.getElementById('calendar-month-name');
+        if (!grid || !monthLabel) return;
+
+        // Names in Arabic
+        const monthsArabic = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
+        const year = currentCalendarDate.getFullYear();
+        const month = currentCalendarDate.getMonth();
+
+        monthLabel.textContent = `${monthsArabic[month]} ${year}`;
+
+        // Get first day of month index (0: Sunday, ..., 6: Saturday)
+        const firstDay = new Date(year, month, 1);
+        let startDayIndex = firstDay.getDay(); 
+        // Adjust for Arabic week starting Saturday (Sat=0, Sun=1, Mon=2, Tue=3, Wed=4, Thu=5, Fri=6)
+        let adjustedStart = (startDayIndex + 1) % 7; 
+
+        // Total days in month
+        const totalDays = new Date(year, month + 1, 0).getDate();
+
+        // Clear grid
+        grid.innerHTML = '';
+
+        // Add empty spaces for offset
+        for (let i = 0; i < adjustedStart; i++) {
+            grid.innerHTML += `<div style="padding:10px;"></div>`;
+        }
+
+        // Fetch all logs
+        const inspections = dm.data.inspections ? dm.data.inspections.inspections || [] : [];
+        const incidents = dm.data.incidents ? dm.data.incidents.incidents || [] : [];
+        const permits = dm.data.permits ? dm.data.permits.permits || [] : [];
+
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        // Draw day cells
+        for (let day = 1; day <= totalDays; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            
+            // Count events for this date
+            const dayInspections = inspections.filter(i => i.date === dateStr);
+            const dayIncidents = incidents.filter(i => {
+                if (!i.created_at) return false;
+                return i.created_at.split('T')[0] === dateStr;
+            });
+            const dayPermits = permits.filter(p => {
+                return dateStr === "2026-07-28" || dateStr === "2024-05-22"; 
+            });
+
+            const eventCount = dayInspections.length + dayIncidents.length + dayPermits.length;
+            const isToday = dateStr === todayStr;
+
+            grid.innerHTML += `
+                <button onclick="showCalendarEvents('${dateStr}')" style="
+                    background: ${isToday ? 'var(--green-700)' : 'var(--white)'};
+                    color: ${isToday ? 'var(--white)' : 'var(--gray-800)'};
+                    border: 1px solid ${isToday ? 'var(--green-700)' : 'var(--gray-200)'};
+                    padding: 8px 4px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 13px;
+                    font-weight: 700;
+                    position: relative;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 42px;
+                ">
+                    ${day}
+                    ${eventCount > 0 ? `
+                        <span style="
+                            position: absolute;
+                            bottom: 3px;
+                            width: 6px;
+                            height: 6px;
+                            background: ${isToday ? 'var(--white)' : 'var(--orange-500)'};
+                            border-radius: 50%;
+                        "></span>
+                    ` : ''}
+                </button>
+            `;
+        }
+
+        // Show events for selected day (default to 28th if July 2026, or current date day)
+        const activeDay = (year === 2026 && month === 6) ? 28 : new Date().getDate();
+        const activeDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(activeDay).padStart(2, '0')}`;
+        showCalendarEvents(activeDateStr);
+    }
+
+    function showCalendarEvents(dateString) {
+        document.getElementById('selected-day-label').textContent = `أحداث وتفاصيل يوم: ${dateString}`;
+        const list = document.getElementById('selected-day-events-list');
+        if (!list) return;
+
+        list.innerHTML = '';
+
+        const inspections = dm.data.inspections ? dm.data.inspections.inspections || [] : [];
+        const incidents = dm.data.incidents ? dm.data.incidents.incidents || [] : [];
+        const permits = dm.data.permits ? dm.data.permits.permits || [] : [];
+
+        let eventsFound = [];
+
+        inspections.forEach(ins => {
+            if (ins.date === dateString) {
+                eventsFound.push({
+                    type: 'inspection',
+                    title: `🔍 فحص دوري: ${ins.asset_name}`,
+                    desc: `المفتش: ${ins.inspector_name} | النتيجة: ${ins.result}`,
+                    time: 'طوال اليوم',
+                    badgeClass: ins.result === 'مطابق' ? 'badge-green' : 'badge-red'
+                });
+            }
+        });
+
+        incidents.forEach(inc => {
+            if (inc.created_at && inc.created_at.split('T')[0] === dateString) {
+                eventsFound.push({
+                    type: 'incident',
+                    title: `🚨 بلاغ خطر (اسكار): ${inc.title}`,
+                    desc: `الموقع: ${inc.location} | الأولوية: ${inc.priority}`,
+                    time: inc.created_at.split('T')[1]?.substring(0, 5) || '',
+                    badgeClass: 'badge-orange'
+                });
+            }
+        });
+
+        permits.forEach(p => {
+            if (dateString === "2026-07-28" || dateString === "2024-05-22") {
+                eventsFound.push({
+                    type: 'permit',
+                    title: `📋 تصريح عمل: ${p.title}`,
+                    desc: `الموقع: ${p.location} | الحالة: ${p.status}`,
+                    time: 'موافق عليه',
+                    badgeClass: 'badge-blue'
+                });
+            }
+        });
+
+        if (eventsFound.length === 0) {
+            list.innerHTML = '<p style="font-size:12px;color:var(--gray-400);text-align:center;padding:12px 0;">لا توجد سجلات أحداث لهذا اليوم.</p>';
+            return;
+        }
+
+        list.innerHTML = eventsFound.map(ev => `
+            <div class="item-card" style="margin-bottom:8px;padding:10px;border-right:4px solid ${ev.type === 'inspection' ? 'var(--green-600)' : ev.type === 'incident' ? 'var(--orange-500)' : 'var(--blue-500)'};">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                    <h5 style="font-size:13px;font-weight:800;color:var(--gray-800);">${ev.title}</h5>
+                    <span class="badge ${ev.badgeClass}">${ev.time}</span>
+                </div>
+                <p style="font-size:11px;color:var(--gray-500);margin:0;">${ev.desc}</p>
+            </div>
+        `).join('');
+    }
+
+    // ===== DYNAMIC EXTINGUISHER TYPES =====
+    function populateExtinguisherTypes() {
+        if (localStorage.getItem('hse_ext_types')) {
+            extinguisherTypes = JSON.parse(localStorage.getItem('hse_ext_types'));
+        }
+        const select = document.getElementById('add-ext-subtype');
+        if (!select) return;
+
+        select.innerHTML = extinguisherTypes.map(t => `<option value="${t}">${t}</option>`).join('');
+    }
+
+    function addNewExtinguisherTypePrompt() {
+        const val = prompt("أدخل اسم نوع مطفأة الحريق الجديد (مثال: مطفأة الكرة المتفجرة):");
+        if (val && val.trim() !== '') {
+            const cleanVal = val.trim();
+            if (!extinguisherTypes.includes(cleanVal)) {
+                extinguisherTypes.push(cleanVal);
+                localStorage.setItem('hse_ext_types', JSON.stringify(extinguisherTypes));
+                populateExtinguisherTypes();
+                document.getElementById('add-ext-subtype').value = cleanVal;
+                showToast(`✅ تم إضافة النوع الجديد: ${cleanVal}`);
+            }
+        }
+    }
+
     // ===== INITIAL LOAD =====
     (async function init() {
         // Load from localStorage, or use seed data on first run
@@ -2625,13 +2970,26 @@
                 localStorage.setItem('hse_' + key, JSON.stringify(SEED_DATA[key]));
             }
         });
-        renderHome();
+
+        // Initialize Extinguisher types list
+        if (localStorage.getItem('hse_ext_types')) {
+            extinguisherTypes = JSON.parse(localStorage.getItem('hse_ext_types'));
+        }
+
+        // Verify configuration setup status
+        const configured = localStorage.getItem('hse_configured') === 'true';
+        if (!configured) {
+            showScreen('firstSetup');
+        } else {
+            renderHome();
+        }
 
         // If GitHub configured, sync in background
         if (gh.isConfigured()) {
             try {
                 await dm.loadAll();
-                renderHome();
+                const configured = localStorage.getItem('hse_configured') === 'true';
+                if (configured) renderHome();
             } catch (e) {
                 console.warn('GitHub sync failed, using local data:', e);
             }
