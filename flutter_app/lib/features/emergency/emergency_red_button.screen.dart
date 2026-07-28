@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/network/socket_service.dart';
-import '../../core/theme/branding_engine.dart';
 
 class EmergencyRedButtonScreen extends StatefulWidget {
   const EmergencyRedButtonScreen({Key? key}) : super(key: key);
