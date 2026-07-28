@@ -10,9 +10,8 @@ import 'features/auth/login.screen.dart';
 import 'features/navigation/app_sidebar_drawer.dart';
 import 'features/dashboard/admin_dashboard.screen.dart';
 import 'features/layout/layout_canvas.screen.dart';
-import 'features/assets/qr_scanner.screen.dart';
 import 'features/tasks_and_ai/tasks_ai_studio.screen.dart';
-import 'features/emergency/emergency_red_button.screen.dart';
+import 'features/members/member_management.screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -46,7 +45,7 @@ class SafeCoreEnterpriseApp extends StatelessWidget {
     authProvider.registerBrandingProvider(brandingProvider);
 
     return MaterialApp(
-      title: 'SafeCore Enterprise HSE Platform',
+      title: 'السلامة المهنية - SafeCore HSE',
       debugShowCheckedModeBanner: false,
       theme: brandingProvider.generateThemeData(),
       builder: (context, child) {
@@ -71,130 +70,208 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
   int _currentIndex = 0;
 
   void _onNavigate(int index) {
-    if (index >= 0 && index < 5) {
+    if (index >= 0 && index < 4) {
       setState(() => _currentIndex = index);
     }
   }
 
+  void _showNotificationsModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('إشعارات وتنبيهات السلامة الميدانية', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E5E3A))),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                  decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                  child: const Text('3 تنبيهات عاجلة', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12)),
+                ),
+              ],
+            ),
+            const Divider(height: 24),
+            _buildNotificationItem('⚠️ إنذار ميداني', 'تم رصد مخالفة عدم ارتداء خوذة في مبنى الإنتاج (أحمد علي).', 'الآن'),
+            _buildNotificationItem('🔥 تقرير مطفأة', 'مطفأة رغوية رقم #FE-003 بحاجة لإعادة فحص وتعبئة فورية.', 'منذ ساعتين'),
+            _buildNotificationItem('📝 اسكار جديد', 'تسجيل خطر في الدرج المكسور عند مبنى الإنتاج الدور الأول.', 'أمس'),
+            const SizedBox(height: 14),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E5E3A), foregroundColor: Colors.white),
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('إغلاق وتأكيد القراءة'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNotificationItem(String title, String desc, String time) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 8, height: 8,
+            margin: const EdgeInsets.only(top: 6),
+            decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(title, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFF2D3748))),
+                    Text(time, style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(desc, style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final brandingProvider = Provider.of<BrandingProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
-    final branding = brandingProvider.branding;
     final user = authProvider.currentUser;
 
     final screens = [
       AdminDashboardScreen(onNavigate: _onNavigate),
-      const LayoutCanvasScreen(),
-      const QrScannerScreen(),
       const TasksAndAiStudioScreen(),
-      const EmergencyRedButtonScreen(),
+      const LayoutCanvasScreen(),
+      const MemberManagementScreen(),
     ];
 
     return Scaffold(
       drawer: AppSidebarDrawer(onNavigate: _onNavigate),
       appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        centerTitle: true,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.amber, size: 28),
-            tooltip: 'القائمة الجانبية والصلاحيات',
+            icon: const Icon(Icons.menu, color: Color(0xFF2D3748), size: 28),
+            tooltip: 'القائمة الجانبية وإدارة الحسابات',
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        title: Row(
-          children: [
-            const Icon(Icons.shield, color: Colors.amber),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                branding.tenantName,
-                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+        title: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E5E3A).withOpacity(0.08),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.health_and_safety, color: Color(0xFF1E5E3A), size: 22),
+              const SizedBox(width: 8),
+              const Text(
+                'السلامة المهنية',
+                style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF1E5E3A)),
               ),
-            ),
-          ],
-        ),
-        actions: [
-          // Live Role Indicator Badge
-          if (user != null)
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: authProvider.isAdmin ? Colors.amber.withOpacity(0.2) : Colors.green.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: authProvider.isAdmin ? Colors.amberAccent : Colors.greenAccent,
-                  width: 1.2,
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    authProvider.isAdmin ? Icons.admin_panel_settings : Icons.engineering,
-                    size: 14,
-                    color: authProvider.isAdmin ? Colors.amberAccent : Colors.greenAccent,
+              if (user != null) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: authProvider.isAdmin ? Colors.amber.shade700 : const Color(0xFF1E5E3A),
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  const SizedBox(width: 4),
-                  Text(
+                  child: Text(
                     authProvider.isAdmin ? 'ADMIN' : 'MEMBER',
-                    style: TextStyle(
-                      color: authProvider.isAdmin ? Colors.amberAccent : Colors.greenAccent,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w900,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
                   ),
-                ],
-              ),
-            ),
-
-          // White-Label Live Tenant Workspace Switcher Demo Button
-          DropdownButton<String>(
-            value: branding.tenantId == 'petroapex' || branding.tenantId == 'alnoor' ? branding.tenantId : null,
-            hint: const Text('🏢 Workspace', style: TextStyle(fontSize: 11, color: Colors.white70)),
-            dropdownColor: Theme.of(context).cardColor,
-            underline: const SizedBox(),
-            icon: const Icon(Icons.business, color: Colors.amberAccent, size: 22),
-            onChanged: (val) {
-              if (val == 'petroapex') {
-                brandingProvider.applyTenantBranding(TenantBranding.defaultPetroApex());
-              } else if (val == 'alnoor') {
-                brandingProvider.applyTenantBranding(
-                  const TenantBranding(
-                    tenantId: 'alnoor',
-                    tenantName: 'مدينة النور الطبية للصحة والسلامة',
-                    logoUrl: 'https://safecore-assets.s3.amazonaws.com/logos/alnoor.png',
-                    primaryColor: Color(0xFF2B6CB0),
-                    secondaryColor: Color(0xFFE53E3E),
-                    accentColor: Color(0xFF4FD1C5),
-                    fontFamily: 'IBM Plex Sans Arabic',
-                    isRtl: true,
-                  ),
-                );
-              }
-            },
-            items: const [
-              DropdownMenuItem(value: 'petroapex', child: Text('🏢 PetroApex Refinery (LTR/Navy)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
-              DropdownMenuItem(value: 'alnoor', child: Text('🏥 مدينة النور الطبية (RTL / Arabic)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold))),
+                ),
+              ],
             ],
           ),
-          const SizedBox(width: 10),
+        ),
+        actions: [
+          // Notification Bell with Red Badge ("3") exactly as in screenshot
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications_outlined, color: Color(0xFF2D3748), size: 28),
+                  onPressed: _showNotificationsModal,
+                ),
+                Positioned(
+                  top: 8,
+                  left: 10,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                    child: const Text(
+                      '3',
+                      style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
       body: screens[_currentIndex],
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) => _onNavigate(index),
-        indicatorColor: branding.secondaryColor.withOpacity(0.3),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard, color: Colors.amberAccent), label: 'الرئيسية'),
-          NavigationDestination(icon: Icon(Icons.map_outlined), selectedIcon: Icon(Icons.map, color: Colors.amberAccent), label: 'الخرائط'),
-          NavigationDestination(icon: Icon(Icons.qr_code_scanner_outlined), selectedIcon: Icon(Icons.qr_code_scanner, color: Colors.amberAccent), label: 'الماسح'),
-          NavigationDestination(icon: Icon(Icons.task_alt_outlined), selectedIcon: Icon(Icons.task_alt, color: Colors.amberAccent), label: 'المهام الذكية'),
-          NavigationDestination(icon: Icon(Icons.emergency_outlined, color: Colors.redAccent), selectedIcon: Icon(Icons.emergency, color: Colors.red), label: 'الطوارئ'),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 10, offset: const Offset(0, -3)),
+          ],
+        ),
+        child: NavigationBar(
+          selectedIndex: _currentIndex,
+          onDestinationSelected: (index) => _onNavigate(index),
+          backgroundColor: Colors.white,
+          elevation: 0,
+          indicatorColor: const Color(0xFF1E5E3A).withOpacity(0.12),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined, color: Color(0xFF64748B)),
+              selectedIcon: Icon(Icons.home_rounded, color: Color(0xFF1E5E3A)),
+              label: 'الرئيسية',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.task_outlined, color: Color(0xFF64748B)),
+              selectedIcon: Icon(Icons.task_rounded, color: Color(0xFF1E5E3A)),
+              label: 'المهام',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.bar_chart_outlined, color: Color(0xFF64748B)),
+              selectedIcon: Icon(Icons.bar_chart_rounded, color: Color(0xFF1E5E3A)),
+              label: 'التقارير',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.settings_outlined, color: Color(0xFF64748B)),
+              selectedIcon: Icon(Icons.settings, color: Color(0xFF1E5E3A)),
+              label: 'الإعدادات',
+            ),
+          ],
+        ),
       ),
     );
   }

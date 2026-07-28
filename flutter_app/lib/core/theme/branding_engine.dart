@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 /**
  * Enterprise White-Label Branding Engine & Theme Provider.
- * Dynamically re-skins colors, typography, logos, and RTL layout direction
- * based on the authenticated enterprise organization payload.
+ * Adapted to default to the official Arabic Occupational Safety UI (السلامة المهنية)
+ * exactly matching client design requirements with pristine green tones and RTL alignment.
  */
 class TenantBranding {
   final String tenantId;
@@ -26,6 +26,19 @@ class TenantBranding {
     required this.fontFamily,
     required this.isRtl,
   });
+
+  factory TenantBranding.defaultOfficialHse() {
+    return const TenantBranding(
+      tenantId: 'official_hse',
+      tenantName: 'السلامة المهنية',
+      logoUrl: 'https://safecore-assets.s3.amazonaws.com/logos/hse_helmet.png',
+      primaryColor: Color(0xFF1E5E3A), // Official HSE Emerald/Pine Green
+      secondaryColor: Color(0xFF15482D), // Deep Forest Green
+      accentColor: Color(0xFFE53E3E), // Warning / Alert Red & Orange
+      fontFamily: 'IBM Plex Sans Arabic',
+      isRtl: true,
+    );
+  }
 
   factory TenantBranding.defaultPetroApex() {
     return const TenantBranding(
@@ -49,19 +62,19 @@ class TenantBranding {
 
     return TenantBranding(
       tenantId: data['subdomain'] ?? data['id'] ?? 'default',
-      tenantName: data['name'] ?? 'SafeCore HSE',
+      tenantName: data['name'] ?? 'السلامة المهنية',
       logoUrl: data['logoUrl'] ?? '',
-      primaryColor: data['primaryColor'] != null ? parseHexColor(data['primaryColor']) : const Color(0xFF1A365D),
-      secondaryColor: data['secondaryColor'] != null ? parseHexColor(data['secondaryColor']) : const Color(0xFFDD6B20),
-      accentColor: data['accentColor'] != null ? parseHexColor(data['accentColor']) : const Color(0xFF38A169),
+      primaryColor: data['primaryColor'] != null ? parseHexColor(data['primaryColor']) : const Color(0xFF1E5E3A),
+      secondaryColor: data['secondaryColor'] != null ? parseHexColor(data['secondaryColor']) : const Color(0xFF15482D),
+      accentColor: data['accentColor'] != null ? parseHexColor(data['accentColor']) : const Color(0xFFE53E3E),
       fontFamily: data['fontFamily'] ?? 'IBM Plex Sans Arabic',
-      isRtl: data['isRtl'] == true || data['isRtl'] == 'true',
+      isRtl: data['isRtl'] == true || data['isRtl'] == 'true' || (data['subdomain'] == 'official_hse' || data['subdomain'] == 'alnoor'),
     );
   }
 }
 
 class BrandingProvider extends ChangeNotifier {
-  TenantBranding _currentBranding = TenantBranding.defaultPetroApex();
+  TenantBranding _currentBranding = TenantBranding.defaultOfficialHse();
   bool _isDarkMode = false;
 
   TenantBranding get branding => _currentBranding;
@@ -97,24 +110,26 @@ class BrandingProvider extends ChangeNotifier {
         tertiary: _currentBranding.accentColor,
         brightness: _isDarkMode ? Brightness.dark : Brightness.light,
       ),
-      scaffoldBackgroundColor: _isDarkMode ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
+      scaffoldBackgroundColor: _isDarkMode ? const Color(0xFF0D1117) : const Color(0xFFF6F8FB),
+      cardColor: _isDarkMode ? const Color(0xFF161B22) : Colors.white,
       textTheme: baseTextTheme.copyWith(
-        titleLarge: TextStyle(fontWeight: FontWeight.w700, color: _isDarkMode ? Colors.white : baseColor),
-        bodyMedium: TextStyle(color: _isDarkMode ? Colors.white70 : Colors.black87),
+        titleLarge: TextStyle(fontWeight: FontWeight.w800, color: _isDarkMode ? Colors.white : baseColor),
+        bodyMedium: TextStyle(color: _isDarkMode ? Colors.white70 : const Color(0xFF2D3748)),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: _isDarkMode ? const Color(0xFF161B22) : Colors.white,
         elevation: 0,
-        centerTitle: false,
+        centerTitle: true,
         iconTheme: IconThemeData(color: _isDarkMode ? Colors.white : baseColor),
-        titleTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: _isDarkMode ? Colors.white : baseColor),
+        titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: _isDarkMode ? Colors.white : baseColor, fontFamily: _currentBranding.fontFamily),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: secondaryColor,
+          backgroundColor: baseColor,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           elevation: 2,
         ),
       ),
