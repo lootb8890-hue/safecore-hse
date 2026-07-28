@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/auth/auth_provider.dart';
 import '../emergency/emergency_red_button.screen.dart';
-import '../layout/qr_scanner.screen.dart';
+import '../assets/qr_scanner.screen.dart';
 import '../fire_extinguishers/fire_extinguishers.screen.dart';
 import '../observations/observations.screen.dart';
 import '../permits/work_permits.screen.dart';
