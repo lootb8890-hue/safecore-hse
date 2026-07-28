@@ -1,27 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/auth/auth_provider.dart';
-import '../../core/theme/branding_engine.dart';
-
-class MemberItem {
-  final String id;
-  final String fullName;
-  final String email;
-  final String department;
-  final String branch;
-  final String role;
-  bool isActive;
-
-  MemberItem({
-    required this.id,
-    required this.fullName,
-    required this.email,
-    required this.department,
-    required this.branch,
-    this.role = 'MEMBER',
-    this.isActive = true,
-  });
-}
 
 class MemberManagementScreen extends StatefulWidget {
   const MemberManagementScreen({Key? key}) : super(key: key);
@@ -31,261 +10,29 @@ class MemberManagementScreen extends StatefulWidget {
 }
 
 class _MemberManagementScreenState extends State<MemberManagementScreen> {
-  final List<MemberItem> _members = [
-    MemberItem(
-      id: 'usr_m01',
-      fullName: 'طارق زياد (Tariq Ziad)',
-      email: 'inspector@petroapex.com',
-      department: 'قسم المراقبة الميدانية ومسح الأمان',
-      branch: 'مصفاة جدة - المنطقة التشغيلية (أ)',
-      role: 'MEMBER',
-    ),
-    MemberItem(
-      id: 'usr_m02',
-      fullName: 'سارة الغامدي (Sarah Al-Ghamdi)',
-      email: 's.ghamdi@petroapex.com',
-      department: 'إدارة الرصد البيئي ومكافحة الانبعاثات',
-      branch: 'المقر التجريبي - ينبع الصناعية',
-      role: 'MEMBER',
-    ),
-    MemberItem(
-      id: 'usr_m03',
-      fullName: 'ناصر الدوسري (Nasser Al-Dosy)',
-      email: 'n.dosri@petroapex.com',
-      department: 'فريق الاستجابة السريعة لمكافحة الطوارئ',
-      branch: 'مستودعات الوقود المركزية - الخرج',
-      role: 'MEMBER',
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final branding = Provider.of<BrandingProvider>(context).branding;
-
-    if (!authProvider.isAdmin) {
-      return Scaffold(
-        backgroundColor: const Color(0xFF0F172A),
-        appBar: AppBar(title: const Text('خطأ في الصلاحيات')),
-        body: const Center(
-          child: Text(
-            'هذه الواجهة مخصصة للمسؤول العام (Admin) فقط ولا يمكن للأعضاء العاديين الوصول إليها.',
-            style: TextStyle(color: Colors.redAccent, fontSize: 16, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
-    }
-
-    return Scaffold(
-      backgroundColor: const Color(0xFF0B1120),
-      appBar: AppBar(
-        backgroundColor: branding.secondaryColor,
-        elevation: 4,
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('إدارة شؤون الأعضاء والمراقبين الميدانيين', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Colors.white)),
-            Text('Admin Governance & Member Roster', style: TextStyle(fontSize: 12, color: Colors.amberAccent, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.amber,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.shield, color: Colors.black, size: 16),
-                SizedBox(width: 6),
-                Text('حساب مسؤول عام (Admin)', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 12)),
-              ],
-            ),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(18.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Banner explaining Member onboarding workflow
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blueGrey.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.amberAccent.withOpacity(0.5)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.info_outline, color: Colors.amberAccent, size: 32),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'بروتوكول اعتماد وحماية الأعضاء في المنشأة:',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'وفقاً لتعليمات الحكامة الصناعية، يقوم المسؤول العام (Admin) من هذه الواجهة بإنشاء وإضافة حسابات الموظفين والمراقبين برتبة عضو (MEMBER). يستطيع الأعضاء التسجيل والدخول فوراً بالبريد الإلكتروني المخصص لإتمام المراجعات والبلاغات في الميدان دون مساس بالصلاحيات القيادية.',
-                            style: TextStyle(color: Colors.grey.shade300, fontSize: 12, height: 1.5),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'قائمة الطاقم الميداني والأعضاء (${_members.length}):',
-                    style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w800),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () => _showAddMemberModal(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amber,
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    icon: const Icon(Icons.person_add_alt_1, size: 20),
-                    label: const Text('إضافة عضو / مراقب جديد', style: TextStyle(fontWeight: FontWeight.w900)),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 14),
-
-              // Roster List
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _members.length,
-                  itemBuilder: (context, index) {
-                    final member = _members[index];
-                    return Card(
-                      color: const Color(0xFF1E293B),
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: member.isActive ? Colors.white12 : Colors.redAccent.withOpacity(0.4)),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 26,
-                              backgroundColor: member.isActive ? Colors.green.shade700 : Colors.grey.shade700,
-                              child: const Icon(Icons.engineering, color: Colors.white, size: 28),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        member.fullName,
-                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: Colors.green.withOpacity(0.2),
-                                          borderRadius: BorderRadius.circular(6),
-                                          border: Border.all(color: Colors.greenAccent, width: 1),
-                                        ),
-                                        child: const Text('🛡️ رتبة عضو (MEMBER)', style: TextStyle(color: Colors.greenAccent, fontSize: 11, fontWeight: FontWeight.w800)),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.email, color: Colors.amberAccent, size: 14),
-                                      const SizedBox(width: 6),
-                                      Text(member.email, style: TextStyle(color: Colors.grey.shade300, fontSize: 13, fontWeight: FontWeight.w600)),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.location_on, color: Colors.white60, size: 14),
-                                      const SizedBox(width: 6),
-                                      Text('${member.department} | ${member.branch}', style: TextStyle(color: Colors.grey.shade400, fontSize: 12)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Column(
-                              children: [
-                                Switch(
-                                  value: member.isActive,
-                                  activeColor: Colors.amber,
-                                  onChanged: (val) {
-                                    setState(() {
-                                      member.isActive = val;
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(val ? 'تم تنشيط حساب [${member.fullName}]' : 'تم إيقاف صلاحية دخول [${member.fullName}] مؤقتاً')),
-                                    );
-                                  },
-                                ),
-                                Text(
-                                  member.isActive ? 'نشط ميدانياً' : 'موقوف',
-                                  style: TextStyle(color: member.isActive ? Colors.greenAccent : Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _departmentController = TextEditingController(text: 'فحص التفتيش والسلامة الميدانية');
+  final _branchController = TextEditingController(text: 'مصفاة جدة - المنطقة التشغيلية');
+  final _passwordController = TextEditingController(text: 'SafeCore@2026!');
 
   void _showAddMemberModal(BuildContext context) {
-    final nameController = TextEditingController();
-    final emailController = TextEditingController();
-    final departmentController = TextEditingController(text: 'فحص التفتيش والسلامة الميدانية');
-    final branchController = TextEditingController(text: 'المنطقة التشغيلية');
-    final passwordController = TextEditingController(text: 'SafeCore@2026!');
+    _nameController.clear();
+    _emailController.clear();
+    _departmentController.text = 'فحص التفتيش والسلامة الميدانية';
+    _branchController.text = 'مصفاة جدة - المنطقة التشغيلية';
+    _passwordController.text = 'SafeCore@2026!';
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF0F172A),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Colors.amberAccent, width: 1.5)),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: const BorderSide(color: Color(0xFF1E5E3A), width: 1.5)),
         title: const Row(
           children: [
-            Icon(Icons.person_add, color: Colors.amber, size: 28),
+            Icon(Icons.person_add, color: Color(0xFF1E5E3A), size: 28),
             SizedBox(width: 12),
-            Expanded(child: Text('تسجيل وإدراج عضو / مراقب جديد', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 17))),
+            Expanded(child: Text('تسجيل وإدراج عضو / مراقب جديد', style: TextStyle(color: Color(0xFF1E5E3A), fontWeight: FontWeight.w900, fontSize: 17))),
           ],
         ),
         content: SingleChildScrollView(
@@ -293,48 +40,48 @@ class _MemberManagementScreenState extends State<MemberManagementScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'سيتم منح الموظف رتبة (عضو / مراقب ميداني) حصراً، مما يتيح له استخدام كافة واجهات الفحص والذكاء الاصطناعي والإبلاغ دون صلاحيات قيادية للمنشأة.',
-                style: TextStyle(color: Colors.white70, fontSize: 12, height: 1.5),
+                'سيتم تسجيل العضو في القائمة المعتمدة. لن يتمكن العضو من إتمام التسجيل وتفعيل حسابه والدخول إلا بالبريد المعتمد الذي تحدده بالأسفل.',
+                style: TextStyle(color: Colors.black54, fontSize: 12, height: 1.5),
               ),
               const SizedBox(height: 16),
               TextField(
-                controller: nameController,
-                style: const TextStyle(color: Colors.white),
-                decoration: _dialogInput('اسم العضو الثلاثي (Member Full Name)', Icons.person),
+                controller: _nameController,
+                decoration: _dialogInput('اسم العضو الميداني الثنائي/الثلاثي', Icons.person_outline),
               ),
               const SizedBox(height: 12),
               TextField(
-                controller: emailController,
-                style: const TextStyle(color: Colors.white),
-                decoration: _dialogInput('البريد العملي (Member Email)', Icons.email),
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: _dialogInput('البريد الإلكتروني للعمل (Email)', Icons.email_outlined),
               ),
               const SizedBox(height: 12),
               TextField(
-                controller: departmentController,
-                style: const TextStyle(color: Colors.white),
-                decoration: _dialogInput('القسم / الاختصاص (Department)', Icons.group_work),
+                controller: _departmentController,
+                decoration: _dialogInput('القسم / الاختصاص الميداني', Icons.group_work_outlined),
               ),
               const SizedBox(height: 12),
               TextField(
-                controller: branchController,
-                style: const TextStyle(color: Colors.white),
-                decoration: _dialogInput('المقر / المحطة (Facility Branch)', Icons.place),
+                controller: _branchController,
+                decoration: _dialogInput('المقر / المحطة الميدانية', Icons.place_outlined),
               ),
               const SizedBox(height: 12),
               TextField(
-                controller: passwordController,
-                style: const TextStyle(color: Colors.white),
-                decoration: _dialogInput('كلمة المرور المبدئية (Initial Password)', Icons.lock),
+                controller: _passwordController,
+                decoration: _dialogInput('كلمة المرور المبدئية الموصى بها', Icons.lock_outline),
               ),
               const SizedBox(height: 14),
               Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(color: Colors.green.withOpacity(0.15), borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.greenAccent)),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E5E3A).withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFF1E5E3A)),
+                ),
                 child: const Row(
                   children: [
-                    Icon(Icons.lock_person, color: Colors.greenAccent, size: 18),
+                    Icon(Icons.lock_person_outlined, color: Color(0xFF1E5E3A), size: 18),
                     SizedBox(width: 8),
-                    Expanded(child: Text('الرتبة المعتمدة التلقائية: عضو مراقب (MEMBER)', style: TextStyle(color: Colors.greenAccent, fontWeight: FontWeight.bold, fontSize: 12))),
+                    Expanded(child: Text('الرتبة الافتراضية المقررة: عضو مراقب (MEMBER)', style: TextStyle(color: Color(0xFF1E5E3A), fontWeight: FontWeight.bold, fontSize: 12))),
                   ],
                 ),
               ),
@@ -344,38 +91,47 @@ class _MemberManagementScreenState extends State<MemberManagementScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('إلغاء', style: TextStyle(color: Colors.grey)),
+            child: const Text('إلغاء', style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
           ),
           ElevatedButton.icon(
-            onPressed: () {
-              if (nameController.text.trim().isEmpty || emailController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى كتابة اسم العضو وبريده الإلكتروني على الأقل')));
+            onPressed: () async {
+              final name = _nameController.text.trim();
+              final email = _emailController.text.trim();
+              final dept = _departmentController.text.trim();
+              final branch = _branchController.text.trim();
+              final pass = _passwordController.text.trim();
+
+              if (name.isEmpty || email.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('يرجى ملء الاسم والبريد الإلكتروني للتحقق.')));
                 return;
               }
 
-              setState(() {
-                _members.insert(0, MemberItem(
-                  id: 'usr_${DateTime.now().millisecondsSinceEpoch}',
-                  fullName: nameController.text.trim(),
-                  email: emailController.text.trim(),
-                  department: departmentController.text.trim(),
-                  branch: branchController.text.trim(),
-                  role: 'MEMBER',
-                ));
-              });
-
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('تم تسجيل العضو [${nameController.text}] بنجاح وإضافته كمراقب ميداني في قائمة المنشأة!'),
-                  backgroundColor: Colors.green.shade800,
-                  duration: const Duration(seconds: 4),
-                ),
+              final auth = Provider.of<AuthProvider>(context, listen: false);
+              final success = await auth.addMemberByAdmin(
+                fullName: name,
+                email: email,
+                department: dept,
+                branch: branch,
+                password: pass,
               );
+
+              if (success && mounted) {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('تم إدراج العضو [$name] بنجاح في المنظومة. يمكنه الآن تسجيل الحساب بالبريد الإلكتروني وتفعيله.'),
+                    backgroundColor: const Color(0xFF1E5E3A),
+                  ),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('عذراً، هذا البريد مسجل مسبقاً أو غير صالح.')),
+                );
+              }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.amber, foregroundColor: Colors.black),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1E5E3A), foregroundColor: Colors.white),
             icon: const Icon(Icons.check, size: 18),
-            label: const Text('تضمين وحفظ العضو', style: TextStyle(fontWeight: FontWeight.w900)),
+            label: const Text('اعتماد وإضافة', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -385,12 +141,207 @@ class _MemberManagementScreenState extends State<MemberManagementScreen> {
   InputDecoration _dialogInput(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: Colors.grey.shade400, fontSize: 12),
-      prefixIcon: Icon(icon, color: Colors.amberAccent, size: 20),
+      labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+      prefixIcon: Icon(icon, color: const Color(0xFF1E5E3A), size: 20),
       filled: true,
-      fillColor: Colors.black.withOpacity(0.3),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+      fillColor: const Color(0xFFF8FAFC),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade300)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF1E5E3A), width: 1.5)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final members = authProvider.membersList;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F8FB),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0.5,
+        centerTitle: true,
+        title: const Text('إدارة أعضاء الفريق', style: TextStyle(color: Color(0xFF1E5E3A), fontWeight: FontWeight.bold)),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, color: Color(0xFF2D3748), size: 20),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Banner explaining Member onboarding workflow
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E5E3A).withOpacity(0.06),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF1E5E3A).withOpacity(0.15)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline, color: Color(0xFF1E5E3A), size: 28),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'بروتوكول اعتماد وحماية الأعضاء في الفريق:',
+                            style: TextStyle(color: Color(0xFF1E5E3A), fontWeight: FontWeight.bold, fontSize: 13),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'يقوم الأدمن بإضافة حسابات الموظفين المعتمدين بالأسفل. بعد الإضافة، يستطيع الموظف التوجه لشاشة "تسجيل كعضو" في الدخول وإكمال بيانات تفعيل حسابه بنجاح بالبريد الإلكتروني المعتمد.',
+                            style: TextStyle(color: Colors.grey.shade700, fontSize: 11, height: 1.4),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 18),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'قائمة أعضاء الفريق المعتمدين (${members.length}):',
+                    style: const TextStyle(color: Color(0xFF1B2533), fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () => _showAddMemberModal(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E5E3A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    icon: const Icon(Icons.person_add_alt_1, size: 18),
+                    label: const Text('إضافة عضو جديد', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 12),
+
+              // Roster List
+              Expanded(
+                child: members.isEmpty
+                    ? const Center(child: Text('لا يوجد أعضاء مضافين بعد. اضغط على "إضافة عضو جديد" للمباشرة.'))
+                    : ListView.builder(
+                        itemCount: members.length,
+                        itemBuilder: (context, index) {
+                          final member = members[index];
+                          final email = member['email'] ?? '';
+                          final name = member['fullName'] ?? 'بلا اسم';
+                          final dept = member['department'] ?? 'فريق المراقبة الميدانية';
+                          final branch = member['branch'] ?? 'مصفاة جدة';
+                          final isRegistered = member['isRegistered'] == true;
+                          final isActive = member['isActive'] == true;
+
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade200),
+                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 6, offset: const Offset(0, 2))],
+                            ),
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor: isRegistered ? const Color(0xFF1E5E3A).withOpacity(0.1) : Colors.grey.shade200,
+                                  child: Icon(Icons.engineering, color: isRegistered ? const Color(0xFF1E5E3A) : Colors.grey, size: 24),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            name,
+                                            style: const TextStyle(color: Color(0xFF1B2533), fontWeight: FontWeight.bold, fontSize: 14),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                            decoration: BoxDecoration(
+                                              color: isRegistered ? Colors.green.withOpacity(0.1) : Colors.amber.withOpacity(0.1),
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              isRegistered ? 'مسجل ونشط' : 'قيد تفعيل العضو',
+                                              style: TextStyle(color: isRegistered ? Colors.green.shade800 : Colors.amber.shade900, fontSize: 10, fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        email,
+                                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12, fontWeight: FontWeight.w500),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '$dept • $branch',
+                                        style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Switch(
+                                      value: isActive,
+                                      activeColor: const Color(0xFF1E5E3A),
+                                      onChanged: (val) {
+                                        authProvider.toggleMemberStatus(email, val);
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(val ? 'تم تنشيط حساب [$name]' : 'تم إيقاف صلاحية دخول [$name] مؤقتاً'),
+                                            backgroundColor: val ? const Color(0xFF1E5E3A) : Colors.red.shade700,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    Text(
+                                      isActive ? 'مسموح' : 'موقوف',
+                                      style: TextStyle(color: isActive ? const Color(0xFF1E5E3A) : Colors.red, fontSize: 10, fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                                  onPressed: () {
+                                    authProvider.removeMember(email);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('تم حذف العضو [$name] نهائياً من قائمة الاعتماد.'), backgroundColor: Colors.red.shade700),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

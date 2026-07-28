@@ -7,6 +7,7 @@ import 'core/network/sync_engine.dart';
 import 'core/network/socket_service.dart';
 
 import 'features/auth/login.screen.dart';
+import 'features/auth/enterprise_setup.screen.dart';
 import 'features/navigation/app_sidebar_drawer.dart';
 import 'features/dashboard/admin_dashboard.screen.dart';
 import 'features/layout/layout_canvas.screen.dart';
@@ -54,7 +55,9 @@ class SafeCoreEnterpriseApp extends StatelessWidget {
           child: child!,
         );
       },
-      home: authProvider.isAuthenticated ? const MainNavigationShell() : const LoginScreen(),
+      home: !authProvider.isEnterpriseSetup
+          ? const EnterpriseSetupScreen()
+          : (authProvider.isAuthenticated ? const MainNavigationShell() : const LoginScreen()),
     );
   }
 }
