@@ -100,7 +100,7 @@ class BrandingProvider extends ChangeNotifier {
       scaffoldBackgroundColor: _isDarkMode ? const Color(0xFF0D1117) : const Color(0xFFF8FAFC),
       textTheme: baseTextTheme.copyWith(
         titleLarge: TextStyle(fontWeight: FontWeight.w700, color: _isDarkMode ? Colors.white : baseColor),
-        bodyMedium: TextStyle(color: _isDarkMode ? Colors.white80 : Colors.black87),
+        bodyMedium: TextStyle(color: _isDarkMode ? Colors.white70 : Colors.black87),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: _isDarkMode ? const Color(0xFF161B22) : Colors.white,

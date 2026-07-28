@@ -16,18 +16,18 @@ class SyncEngine extends ChangeNotifier {
   final OfflineStorageService _storage = OfflineStorageService();
   bool _isSyncing = false;
   String _lastSyncStatus = 'Idle';
-  StreamSubscription<List<ConnectivityResult>>? _connectivitySub;
+  StreamSubscription<ConnectivityResult>? _connectivitySub;
 
   bool get isSyncing => _isSyncing;
   String get lastSyncStatus => _lastSyncStatus;
 
   void initializeMonitoring() {
-    _connectivitySub = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
-      if (results.contains(ConnectivityResult.wifi) || results.contains(ConnectivityResult.mobile) || results.contains(ConnectivityResult.ethernet)) {
+    _connectivitySub = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      if (result == ConnectivityResult.wifi || result == ConnectivityResult.mobile || result == ConnectivityResult.ethernet) {
         _storage.setOfflineMode(false);
         debugPrint('🌐 [SyncEngine] Network connectivity recovered! Initiating background synchronization...');
         executeBackgroundSync();
-      } else if (results.contains(ConnectivityResult.none)) {
+      } else if (result == ConnectivityResult.none) {
         _storage.setOfflineMode(true);
         _lastSyncStatus = 'Offline Mode (Local Caching)';
         notifyListeners();
