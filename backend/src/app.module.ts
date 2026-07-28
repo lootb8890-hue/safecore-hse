@@ -1,13 +1,15 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
 import { PrismaService } from './common/prisma/prisma.service';
 import { TenantInterceptor } from './common/interceptors/tenant.interceptor';
 import { RbacGuard } from './common/guards/rbac.guard';
+import { AuthMiddleware } from './common/middleware/auth.middleware';
 
 // Enterprise Multi-Tenant Modular Architecture Imports
 import { TenantsModule } from './modules/tenants/tenants.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 import { AssetsModule } from './modules/assets/assets.module';
 import { LayoutsModule } from './modules/layouts/layouts.module';
 import { InspectionsModule } from './modules/inspections/inspections.module';
@@ -24,6 +26,7 @@ import { ReportsModule } from './modules/reports/reports.module';
     ConfigModule.forRoot({ isGlobal: true }),
     TenantsModule,
     AuthModule,
+    UsersModule,
     AssetsModule,
     LayoutsModule,
     InspectionsModule,
@@ -47,4 +50,8 @@ import { ReportsModule } from './modules/reports/reports.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes('*');
+  }
+}

@@ -1,6 +1,6 @@
 import { Controller, Post, Body, Get, UseGuards, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { AuthService, RegisterUserDto, LoginDto } from './auth.service';
+import { AuthService, RegisterUserDto, EnterpriseSetupDto, LoginDto } from './auth.service';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { RbacGuard } from '../../common/guards/rbac.guard';
 
@@ -9,9 +9,16 @@ import { RbacGuard } from '../../common/guards/rbac.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Post('setup-enterprise')
+  @ApiOperation({ summary: 'Atomically provision a new Enterprise Workspace and its sovereign Admin account' })
+  @ApiResponse({ status: 201, description: 'Enterprise workspace and Admin user successfully onboarded.' })
+  async setupEnterprise(@Body() body: EnterpriseSetupDto) {
+    return this.authService.setupEnterprise(body);
+  }
+
   @Post('register')
-  @ApiOperation({ summary: 'Register a new Admin or Safety Member account inside a Tenant workspace' })
-  @ApiResponse({ status: 201, description: 'User account created with JWT Bearer payload.' })
+  @ApiOperation({ summary: 'Register a new Safety Member account inside a Tenant workspace (Member Role Only)' })
+  @ApiResponse({ status: 201, description: 'User account created with MEMBER role.' })
   async register(@Body() body: RegisterUserDto) {
     return this.authService.register(body);
   }

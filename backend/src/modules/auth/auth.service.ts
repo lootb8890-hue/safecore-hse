@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon2 from 'argon2';
 import { PrismaService } from '../../common/prisma/prisma.service';
@@ -11,6 +11,22 @@ export interface RegisterUserDto {
   role?: 'ADMIN' | 'MEMBER';
   department?: string;
   branch?: string;
+}
+
+export interface EnterpriseSetupDto {
+  tenantName: string;
+  subdomain: string;
+  logoUrl?: string;
+  primaryColor?: string;
+  secondaryColor?: string;
+  accentColor?: string;
+  fontFamily?: string;
+  isRtl?: boolean;
+  adminEmail: string;
+  adminPassword: string;
+  adminFullName: string;
+  adminDepartment?: string;
+  adminBranch?: string;
 }
 
 export interface LoginDto {
@@ -27,6 +43,64 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  async setupEnterprise(data: EnterpriseSetupDto) {
+    const subdomain = data.subdomain.toLowerCase();
+    const existingTenant = await this.prisma.tenant.findUnique({
+      where: { subdomain },
+    });
+
+    if (existingTenant) {
+      throw new ConflictException(`Enterprise workspace subdomain [${subdomain}] is already registered.`);
+    }
+
+    const passwordHash = await argon2.hash(data.adminPassword);
+
+    // Atomic transaction to create organization and primary admin account
+    const result = await this.prisma.$transaction(async (tx) => {
+      const tenant = await tx.tenant.create({
+        data: {
+          name: data.tenantName,
+          subdomain,
+          logoUrl: data.logoUrl,
+          primaryColor: data.primaryColor || '#1A56DB',
+          secondaryColor: data.secondaryColor || '#0E317A',
+          accentColor: data.accentColor || '#F05252',
+          fontFamily: data.fontFamily || 'IBM Plex Sans Arabic',
+          isRtl: data.isRtl ?? true,
+          branches: data.adminBranch ? [data.adminBranch] : ['Main HQ', 'Field Operational Zone'],
+          departments: data.adminDepartment ? [data.adminDepartment] : ['HSE & Executive', 'Field Safety Inspection'],
+        },
+      });
+
+      const adminUser = await tx.user.create({
+        data: {
+          tenantId: tenant.id,
+          email: data.adminEmail.toLowerCase(),
+          passwordHash,
+          fullName: data.adminFullName,
+          role: 'ADMIN', // Exclusive primary admin setup
+          department: data.adminDepartment || 'Executive Command & HSE',
+          branch: data.adminBranch || 'Main HQ',
+        },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          tenantId: tenant.id,
+          actorId: adminUser.id,
+          actionType: 'ENTERPRISE_ONBOARDED',
+          targetEntity: 'TENANT',
+          targetId: tenant.id,
+          newValues: { name: tenant.name, admin: adminUser.email, subdomain },
+        },
+      });
+
+      return { tenant, adminUser };
+    });
+
+    return this.generateTokenResponse(result.adminUser, result.tenant);
+  }
+
   async register(data: RegisterUserDto) {
     const tenant = await this.prisma.tenant.findUnique({
       where: { subdomain: data.tenantSubdomain.toLowerCase() },
@@ -34,6 +108,11 @@ export class AuthService {
 
     if (!tenant) {
       throw new NotFoundException(`Tenant enterprise [${data.tenantSubdomain}] not found.`);
+    }
+
+    // Prohibit self-promotion to ADMIN role through standard registration
+    if (data.role === 'ADMIN') {
+      throw new ForbiddenException('Admin accounts can solely be created during initial Enterprise Onboarding or via Admin User Management.');
     }
 
     const existingUser = await this.prisma.user.findFirst({
@@ -52,9 +131,9 @@ export class AuthService {
         email: data.email.toLowerCase(),
         passwordHash,
         fullName: data.fullName,
-        role: data.role || 'MEMBER',
-        department: data.department,
-        branch: data.branch,
+        role: 'MEMBER', // Strict enforcement of member role for regular registration
+        department: data.department || 'Field Safety Division',
+        branch: data.branch || 'Operational Facility',
       },
     });
 
@@ -63,10 +142,10 @@ export class AuthService {
       data: {
         tenantId: tenant.id,
         actorId: user.id,
-        actionType: 'USER_REGISTERED',
+        actionType: 'USER_REGISTERED_AS_MEMBER',
         targetEntity: 'USER',
         targetId: user.id,
-        newValues: { email: user.email, role: user.role },
+        newValues: { email: user.email, role: user.role, branch: user.branch },
       },
     });
 
@@ -103,7 +182,7 @@ export class AuthService {
         actionType: 'USER_LOGGED_IN',
         targetEntity: 'USER',
         targetId: user.id,
-        newValues: { device: data.clientDeviceId || 'Web/PWA', loginAt: new Date() },
+        newValues: { device: data.clientDeviceId || 'Web/PWA/Mobile', loginAt: new Date(), role: user.role },
       },
     });
 
